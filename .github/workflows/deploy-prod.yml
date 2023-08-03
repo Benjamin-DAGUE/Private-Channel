@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  AZURE_WEBAPP_NAME: privatechannel                  # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '/PrivateChannel.Back/' # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '7.x.x'                            # set this to the dot net version to use
+
 jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
@@ -14,6 +19,29 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
+
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }} 
+
+
+      - name: dotnet build and publish
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish -c Release --property:PublishDir='${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp' 
+
+
+      - name: 'Run Azure webapp deploy'
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
+          publish-profile: ${{ secrets.BACK_AZURE_WEBAPP_PUBLISH_PROFILE  }} # Define secret variable in repository settings as per action documentation
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+
+
       - name: Build And Deploy PrivateChannel.Front
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -24,3 +52,10 @@ jobs:
           app_location: "PrivateChannel.Front"
           api_location: ""
           output_location: "wwwroot"
+
+
+
+
+      # Run dotnet build and publish
+          
+      # Deploy to Azure Web apps
