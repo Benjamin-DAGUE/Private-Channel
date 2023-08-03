@@ -20,27 +20,6 @@ jobs:
           submodules: true
 
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }} 
-
-
-      - name: dotnet build and publish
-        run: |
-          dotnet restore
-          dotnet build ./PrivateChannel.Back/PrivateChannel.Back.csproj --configuration Release
-          dotnet publish ./PrivateChannel.Back/PrivateChannel.Back.csproj -c Release --property:PublishDir='./myapp' 
-
-
-      - name: 'Run Azure webapp deploy'
-        uses: azure/webapps-deploy@v2
-        with: 
-          app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
-          publish-profile: ${{ secrets.BACK_AZURE_WEBAPP_PUBLISH_PROFILE  }} # Define secret variable in repository settings as per action documentation
-          package: './myapp'
-
-
       - name: Build And Deploy PrivateChannel.Front
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -51,6 +30,27 @@ jobs:
           app_location: "PrivateChannel.Front"
           api_location: ""
           output_location: "wwwroot"
+
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }} 
+
+
+      - name: dotnet build and publish
+        run: |
+          dotnet restore
+          dotnet build ./PrivateChannel.Back/PrivateChannel.Back.csproj --configuration Release
+          dotnet publish ./PrivateChannel.Back/PrivateChannel.Back.csproj -c Release --property:PublishDir='./pkg' 
+
+
+      - name: 'Run Azure webapp deploy'
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
+          publish-profile: ${{ secrets.BACK_AZURE_WEBAPP_PUBLISH_PROFILE  }} # Define secret variable in repository settings as per action documentation
+          package: './PrivateChannel.Back/pkg'
 
 
 
