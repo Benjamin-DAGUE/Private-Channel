@@ -18,6 +18,7 @@
         </MudButton>
         <MudIconButton Class="d-fmex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@("_self")" Href="/note/" />
         <MudIconButton Class="d-fmex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" />
+        <MudIconButton Color="Color.Secondary" Icon="@Icons.Material.Filled.Home" Target="@("_self")" Href="/" />
         <MudToggleIconButton Class="ml-2" @bind-Toggled=_IsDarkMode Variant=Variant.Text ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode"/>
     </MudAppBar>
     <MudMainContent>
