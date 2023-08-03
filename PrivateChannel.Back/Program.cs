@@ -1,5 +1,6 @@
 using PrivateChannel.Back.Middleware;
 using PrivateChannel.Back.Services;
+using System.Reflection;
 
 namespace PrivateChannel.Back;
 public class Program
@@ -32,7 +33,10 @@ public class Program
         app.UseCors();
         app.UseMiddleware<BanMiddleware>();
 
-        app.Map("/", () => "Hello World!");
+        string? version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+
+        app.Map("/", () => $"Hello World {version} !");
         app.MapGrpcService<PrivateChannelService>().RequireCors("CORSDefault");
         app.MapGrpcService<PrivateNoteService>().RequireCors("CORSDefault");
 
