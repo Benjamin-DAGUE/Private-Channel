@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option csharp_namespace = "PrivateChannel.Back";
+
+package privatechannel;
+
+service PrivateChannelSvc {
+
+  rpc CreateChannel (CreateChannelRequest) returns (CreateChannelResponse);
+
+  rpc ConnectToChannel (ConnectToChannelRequest) returns (stream ConnectToChannelResponse);
+
+  rpc GetMessages (GetMessagesRequest) returns (stream GetMessagesResponse);
+
+  rpc SendMessage (SendMessageRequest) returns (SendMessageResponse);
+
+}
+
+message CreateChannelRequest {
+
+}
+
+message CreateChannelResponse {
+  string channelId = 1;
+}
+
+message ConnectToChannelRequest {
+  string channelId = 1;
+  bytes publicKey = 2;
+}
+
+message ConnectToChannelResponse {
+  string peerId = 1;
+  bool isSelf = 2;
+  bool isConnected = 3;
+  bytes publicKey = 4;
+}
+
+message GetMessagesRequest {
+  string channelId = 1;
+  string peerId = 2;
+}
+
+message GetMessagesResponse {
+  bytes sessionKey = 1;
+  bytes encryptedMessage = 2;
+  bytes iV = 3;
+}
+
+message SendMessageRequest {
+  string channelId = 1;
+  string peerId = 2;
+  bytes sessionKey = 3;
+  bytes encryptedMessage = 4;
+  bytes iV = 5;
+}
+
+message SendMessageResponse {
+
+}

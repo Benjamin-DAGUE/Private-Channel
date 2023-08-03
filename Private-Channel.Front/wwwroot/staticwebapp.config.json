@@ -1,0 +1,18 @@
+{
+  "trailingSlash": "always",
+  "routes": [
+    {
+      "route": "/note*",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/channel*",
+      "rewrite": "/index.html"
+    }
+  ],
+  "navigationFallback": {
+
+    "rewrite": "/index.html",
+    "exclude": [ "*.{css,scss,js,png,gif,ico,jpg,svg}" ]
+  }
+}

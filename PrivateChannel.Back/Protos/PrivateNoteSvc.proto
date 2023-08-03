@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "PrivateChannel.Back";
+
+package privatechannel;
+
+service PrivateNoteSvc {
+
+  rpc CreateNote (CreateNoteRequest) returns (CreateNoteResponse);
+
+  rpc ReadNote (ReadNoteRequest) returns (ReadNoteResponse);
+
+}
+
+message CreateNoteRequest {
+  string message = 1;
+  string password = 2;
+  int32 minutesAvailable = 3;
+}
+
+message CreateNoteResponse {
+  bytes id = 1;
+}
+
+message ReadNoteRequest {
+  bytes id = 1;
+  string password = 2;
+}
+
+message ReadNoteResponse {
+  string message = 1;
+}

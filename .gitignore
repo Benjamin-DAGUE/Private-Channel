@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/PrivateChannel.Back/Properties/ServiceDependencies/privatechannel - Zip Deploy/profile.arm.json

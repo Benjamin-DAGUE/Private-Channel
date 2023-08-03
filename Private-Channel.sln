@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrivateChannel.Front", "Private-Channel.Front\PrivateChannel.Front.csproj", "{1DC51714-156F-4CF0-AE49-FB8BAFF05B69}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrivateChannel.Back", "PrivateChannel.Back\PrivateChannel.Back.csproj", "{AFB4604E-9AA0-4059-8198-7EBCBE00ACEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1DC51714-156F-4CF0-AE49-FB8BAFF05B69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DC51714-156F-4CF0-AE49-FB8BAFF05B69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DC51714-156F-4CF0-AE49-FB8BAFF05B69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DC51714-156F-4CF0-AE49-FB8BAFF05B69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFB4604E-9AA0-4059-8198-7EBCBE00ACEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFB4604E-9AA0-4059-8198-7EBCBE00ACEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFB4604E-9AA0-4059-8198-7EBCBE00ACEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFB4604E-9AA0-4059-8198-7EBCBE00ACEE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9B579E37-088D-4703-9648-52B876A77D4D}
+	EndGlobalSection
+EndGlobal

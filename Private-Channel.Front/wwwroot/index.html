@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Private-Channel.com</title>
+    <base href="/" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="Private-Channel.Front.styles.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+
+</head>
+
+<body>
+    <div id="app">
+        <div class="d-flex fill-height flex-column align-center justify-center">
+
+            <h1>
+                Welcome to Private-Channel.com !
+            </h1>
+
+            <div class="loading-container">
+                <div class="svg-with-text">
+                    <svg class="loading-progress">
+                        <circle r="40%" cx="50%" cy="50%" />
+                        <circle r="40%" cx="50%" cy="50%" />
+                    </svg>
+                    <div class="loading-progress-text"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="pc.js"></script>
+</body>
+
+</html>

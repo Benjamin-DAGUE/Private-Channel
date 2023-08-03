@@ -1,0 +1,105 @@
+﻿@page "/note/"
+@page "/note/{NoteId:guid}"
+@inject PrivateNoteSvc.PrivateNoteSvcClient Client
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IJSRuntime JsInterop
+
+<MudContainer Class="fill-height">
+
+    @if (NoteId == null)
+    {
+        @if (string.IsNullOrEmpty(NoteLink))
+        {
+            <MudGrid Class="my-2" Spacing="2">
+
+                <MudItem xs="12">
+                    <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="Start typing your secret note..." @bind-Value="Message" Lines=8 Immediate />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="Password" InputType="@_PasswordInput" Adornment="Adornment.End" AdornmentIcon="@_PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="Show Password" Immediate />
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <MudNumericField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value=HoursAvailable Label="Hours available" Format="0" Min="1" Max="120" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.LockClock" />
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <MudButton Class="fill-height fill-width" Variant=Variant.Filled Color=Color.Primary StartIcon="@Icons.Material.Filled.Send" OnClick="SendNote" Disabled=@(string.IsNullOrWhiteSpace(Message) || string.IsNullOrWhiteSpace(Password))>Send</MudButton>
+                </MudItem>
+
+            </MudGrid>
+
+        }
+        else
+        {
+            <MudGrid Class="my-2" Spacing="2">
+
+                <MudItem xs="12">
+                    <MudTextField ReadOnly Value="@NoteLink" Label="Share this link to send your note !" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyNoteLinkToClipboard" />
+                </MudItem>
+
+            </MudGrid>
+        }
+    }
+    else
+    {
+        <MudGrid Class="my-2" Spacing="2">
+
+            <MudItem xs="12" sm="9">
+                <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="Password" InputType="@_PasswordInput" Adornment="Adornment.End" AdornmentIcon="@_PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="Show Password" Immediate Disabled=@(string.IsNullOrWhiteSpace(Message) == false) />
+            </MudItem>
+            <MudItem xs="12" sm="3">
+                <MudButton Class="fill-height fill-width" Variant=Variant.Filled Color=Color.Primary StartIcon="@Icons.Material.Filled.LockOpen" OnClick="ReadNote" Disabled=@(string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(Message) == false)>Unlock</MudButton>
+            </MudItem>            
+            
+            <MudItem xs="12">
+                <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="Note locked, type your password and unlock it" Value="Message" Lines=8 ReadOnly Disabled=@(string.IsNullOrWhiteSpace(Message)) Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyNoteToClipboard" />
+            </MudItem>
+
+        </MudGrid>
+    }
+
+</MudContainer>
+
+@code {
+
+    bool _IsPasswordVisible = true;
+    bool _IsRandomPassword = true;
+    InputType _PasswordInput = InputType.Text;
+    string _PasswordInputIcon = Icons.Material.Filled.Visibility;
+
+    private void HidePassword()
+    {
+        _IsPasswordVisible = false;
+        _PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+        _PasswordInput = InputType.Password;
+    }
+
+    private void ShowPasword()
+    {
+        _IsPasswordVisible = true;
+        _PasswordInputIcon = Icons.Material.Filled.Visibility;
+        _PasswordInput = InputType.Text;
+    }
+
+    private void ShowHidePassword()
+    {
+        @if (_IsPasswordVisible)
+        {
+            HidePassword();
+        }
+        else
+        {
+            ShowPasword();
+        }
+    }
+
+    private void HideOnCustomPassword()
+    {
+        if (_IsRandomPassword)
+        {
+            _IsRandomPassword = false;
+            HidePassword();
+        }
+    }
+}

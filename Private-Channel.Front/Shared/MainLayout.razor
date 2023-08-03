@@ -1,0 +1,30 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+<MudThemeProvider @bind-IsDarkMode=_IsDarkMode />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar>
+        <MudImage Src="favicon.png"></MudImage>
+        <MudText Typo="Typo.h4" Class="ml-6 d-none d-sm-flex">Private-Channel.com</MudText>
+        <MudSpacer />
+        <MudButton Class="d-none d-md-flex" StartIcon="@Icons.Material.Filled.Send" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/note/") ? "_blank" : "_self")" Href="/note/">
+            New note
+        </MudButton>
+        <MudButton Class="d-none d-md-flex ml-2" StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/">
+            New channel
+        </MudButton>
+        <MudIconButton Class="d-fmex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@("_self")" Href="/note/" />
+        <MudIconButton Class="d-fmex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" />
+        <MudToggleIconButton Class="ml-2" @bind-Toggled=_IsDarkMode Variant=Variant.Text ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode"/>
+    </MudAppBar>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _IsDarkMode;
+}
