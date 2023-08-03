@@ -29,8 +29,8 @@ jobs:
       - name: dotnet build and publish
         run: |
           dotnet restore
-          dotnet build ./Private-Channel/PrivateChannel.Back.csproj --configuration Release
-          dotnet publish ./Private-Channel/PrivateChannel.Back.csproj -c Release --property:PublishDir='./myapp' 
+          dotnet build ./PrivateChannel.Back/PrivateChannel.Back.csproj --configuration Release
+          dotnet publish ./PrivateChannel.Back/PrivateChannel.Back.csproj -c Release --property:PublishDir='./myapp' 
 
 
       - name: 'Run Azure webapp deploy'
@@ -38,7 +38,7 @@ jobs:
         with: 
           app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
           publish-profile: ${{ secrets.BACK_AZURE_WEBAPP_PUBLISH_PROFILE  }} # Define secret variable in repository settings as per action documentation
-          package: '$./Private-Channel/myapp'
+          package: '$./PrivateChannel.Back/myapp'
 
 
       - name: Build And Deploy PrivateChannel.Front
