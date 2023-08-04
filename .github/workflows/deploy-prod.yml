@@ -39,7 +39,7 @@ jobs:
           server: ${{ secrets.FRONT_FTP_URL }}
           username: ${{ secrets.FRONT_FTP_USERNAME }}
           password: ${{ secrets.FRONT_FTP_PASSWORD }}
-          local-dir: "./PrivateChannel.Front/myapp/wwwroot"
+          local-dir: "./PrivateChannel.Front/myapp/wwwroot/"
           server-dir: "/www/"
 
       - name: 'Run Azure webapp deploy'
