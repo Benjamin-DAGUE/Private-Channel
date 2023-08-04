@@ -36,7 +36,7 @@ public class Program
         string? version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
 
-        app.Map("/", () => $"Hello World {version} !");
+        app.Map("/", () => $"Hello World {version} !").RequireCors("CORSDefault");
         app.MapGrpcService<PrivateChannelService>().RequireCors("CORSDefault");
         app.MapGrpcService<PrivateNoteService>().RequireCors("CORSDefault");
 

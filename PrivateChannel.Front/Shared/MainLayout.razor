@@ -1,9 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 
 <MudThemeProvider @bind-IsDarkMode=_IsDarkMode />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<ServerStatusProvider IsServerUpChanged="IsServerUpChanged"/>
 
 <MudLayout>
     <MudAppBar>
@@ -24,8 +26,37 @@
     <MudMainContent>
         @Body
     </MudMainContent>
+    <MudAppBar Bottom Dense >
+        @if (_IsServerUp)
+        {
+            <MudText Typo="Typo.caption">Server is up !</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.caption">Trying to connect to server...</MudText>
+        }
+    </MudAppBar>
 </MudLayout>
 
 @code {
     private bool _IsDarkMode;
+    private bool _IsServerUp = false;
+
+    private void IsServerUpChanged((bool? oldValue, bool newValue) isServerUp)
+    {
+        if (isServerUp.newValue == false)
+        {
+            _IsServerUp = false;
+            Snackbar.Add("Server unreachable...", Severity.Error);
+        }
+        else if (isServerUp.newValue == true)
+        {
+            _IsServerUp = true;
+
+            if (isServerUp.oldValue == false)
+            {
+                Snackbar.Add("Server reachable !", Severity.Success);
+            }
+        }
+    }
 }
