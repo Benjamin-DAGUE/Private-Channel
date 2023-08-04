@@ -69,7 +69,14 @@ public sealed partial class ServerStatusProvider : IDisposable
                     }
                 }
 
-                await Task.Delay(5000);
+                if (IsServerUp == true)
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(1));
+                }
+                else
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(15));
+                }
             }
         }, TaskCreationOptions.LongRunning);
     }

@@ -10,8 +10,8 @@
 
 <MudLayout>
     <MudAppBar>
-        <MudImage Src="favicon.png"></MudImage>
-        <MudText Typo="Typo.h4" Class="ml-6 d-none d-sm-flex">Private-Channel.com</MudText>
+        <MudImage Class="d-none d-sm-flex" Src="@(_IsDarkMode ? "baneer-dark.svg" : "baneer-light.svg")"></MudImage>
+        <MudImage Class="d-flex d-sm-none" Src="@(_IsDarkMode ? "logo-dark.svg" : "logo-light.svg")"></MudImage>
         <MudSpacer />
         <MudButton Class="d-none d-md-flex" StartIcon="@Icons.Material.Filled.Send" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/note/") ? "_blank" : "_self")" Href="/note/">
             New note
@@ -19,31 +19,31 @@
         <MudButton Class="d-none d-md-flex ml-2" StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/">
             New channel
         </MudButton>
-        <MudIconButton Class="d-fmex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@("_self")" Href="/note/" />
-        <MudIconButton Class="d-fmex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" />
-        <MudIconButton Color="Color.Secondary" Icon="@Icons.Material.Filled.Home" Target="@("_self")" Href="/" />
-        <MudToggleIconButton Class="ml-2" @bind-Toggled=_IsDarkMode Variant=Variant.Text ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode"/>
+        <MudIconButton Class="d-flex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@("_self")" Href="/note/" />
+        <MudIconButton Class="d-flex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" />
+        <MudIconButton Class="ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Home" Target="@("_self")" Href="/" />
+        
     </MudAppBar>
     <MudMainContent>
         @Body
     </MudMainContent>
-    <MudAppBar Bottom Dense >
+    <MudAppBar Bottom Fixed Dense >
 
-        <MudText Typo="Typo.caption" Class="mr-4">V@_Version</MudText>
+        <MudToggleIconButton Class="mr-4" Size="Size.Small" ToggledSize="Size.Small" @bind-Toggled=_IsDarkMode Variant=Variant.Text ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode" Title="Switch to dark mode" ToggledTitle="Switch to light mode" />
 
-        @if (_IsServerUp)
+        @if (_IsServerUp == false)
         {
-            <MudText Typo="Typo.caption">Server is up !</MudText>
+            <MudProgressCircular Color="Color.Error" Size="Size.Small" Indeterminate="true" />
+            <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">Offline...</MudText>
         }
-        else
-        {
-            <MudText Typo="Typo.caption">Trying to connect to server...</MudText>
-        }
+
+        <MudSpacer />
+        <MudText Typo="Typo.caption">No cookie website | V@_Version</MudText>
     </MudAppBar>
 </MudLayout>
 
 @code {
-    private bool _IsDarkMode;
+    private bool _IsDarkMode = true;
     private bool _IsServerUp = false;
     string? _Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
