@@ -28,12 +28,7 @@ public class Program
             config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
         });
 
-#if DEBUG
-        string endpoint = "https://localhost:7187";
-#else
-        string endpoint = "https://privatechannel.azurewebsites.net/";
-#endif
-
+        string endpoint = builder.Configuration.GetValue<string>("ServerEndpoint") ?? throw new Exception("Server endpoint not provided in config file");
 
         builder.Services.AddGrpcClient<PrivateChannelSvc.PrivateChannelSvcClient>(o =>
         {

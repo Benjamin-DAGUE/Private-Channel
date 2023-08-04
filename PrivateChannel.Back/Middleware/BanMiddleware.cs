@@ -38,7 +38,7 @@ public class BanMiddleware
 
         try
         {
-            if (ipAddress != null)
+            if (ipAddress != null && context.Request.Path != "/")
             {
                 _BanService.AddUsage(ipAddress);
             }
@@ -49,7 +49,7 @@ public class BanMiddleware
         {
             //this catch is not working for grpc calls because they do not rethrow internal exceptions.
             //this code may be used in future usages.
-            if (ipAddress != null)
+            if (ipAddress != null && context.Request.Path != "/")
             {
                 _Logger.LogError(ex, "An error occurred, banning IP {ipAddress}", ipAddress);
                 _BanService.AddStrike(ipAddress);
