@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Reflection;
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
@@ -27,6 +28,9 @@
         @Body
     </MudMainContent>
     <MudAppBar Bottom Dense >
+
+        <MudText Typo="Typo.caption" Class="mr-4">V@_Version</MudText>
+
         @if (_IsServerUp)
         {
             <MudText Typo="Typo.caption">Server is up !</MudText>
@@ -41,6 +45,7 @@
 @code {
     private bool _IsDarkMode;
     private bool _IsServerUp = false;
+    string? _Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
     private void IsServerUpChanged((bool? oldValue, bool newValue) isServerUp)
     {

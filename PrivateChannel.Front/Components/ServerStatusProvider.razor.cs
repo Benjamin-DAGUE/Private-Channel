@@ -57,8 +57,6 @@ public sealed partial class ServerStatusProvider : IDisposable
                         IsServerUp = false;
                         await IsServerUpChanged.InvokeAsync((oldValue, false));
                     }
-
-                    await Task.Delay(5000);
                 }
                 catch (Exception ex)
                 {
@@ -70,6 +68,8 @@ public sealed partial class ServerStatusProvider : IDisposable
                         await IsServerUpChanged.InvokeAsync((oldValue, false));
                     }
                 }
+
+                await Task.Delay(5000);
             }
         }, TaskCreationOptions.LongRunning);
     }
