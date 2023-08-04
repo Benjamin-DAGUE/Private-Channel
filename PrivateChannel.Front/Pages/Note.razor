@@ -11,7 +11,7 @@
     {
         @if (string.IsNullOrEmpty(NoteLink))
         {
-            <MudGrid Class="my-2" Spacing="2">
+            <MudGrid Spacing="2">
 
                 <MudItem xs="12">
                     <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="Start typing your secret note..." @bind-Value="Message" Lines=8 Immediate />
@@ -32,7 +32,7 @@
         }
         else
         {
-            <MudGrid Class="my-2" Spacing="2">
+            <MudGrid Spacing="2">
 
                 <MudItem xs="12">
                     <MudTextField ReadOnly Value="@NoteLink" Label="Share this link to send your note !" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyNoteLinkToClipboard" />
@@ -43,7 +43,7 @@
     }
     else
     {
-        <MudGrid Class="my-2" Spacing="2">
+        <MudGrid Spacing="2">
 
             <MudItem xs="12" sm="9">
                 <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="Password" InputType="@_PasswordInput" Adornment="Adornment.End" AdornmentIcon="@_PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="Show Password" Immediate Disabled=@(string.IsNullOrWhiteSpace(Message) == false) />
