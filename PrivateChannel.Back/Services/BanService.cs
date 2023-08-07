@@ -244,5 +244,17 @@ public class BanService
         }
     }
 
+    public Dictionary<string, DateTime> GetBanList()
+    {
+        Dictionary<string, DateTime> banList = new Dictionary<string, DateTime>();
+
+        lock (_BannedIPsLocker)
+        {
+            banList = new Dictionary<string, DateTime>(_BannedIPs);
+        }
+
+        return banList;
+    }
+
     #endregion
 }
