@@ -1,19 +1,14 @@
 using Google.Protobuf;
 using Grpc.Core;
-using Microsoft.AspNetCore.DataProtection;
 using PrivateChannel.Back.Core;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace PrivateChannel.Back.Services;
 
 public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
 {
     #region Fields
-
-    /// <summary>
-    ///     Fournisseur de protection des données.
-    /// </summary>
-    private readonly IDataProtectionProvider _DataProtectionProvider;
 
     /// <summary>
     ///     Représente le journal.
@@ -45,10 +40,9 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
     /// <param name="logger">Journal à utiliser.</param>
     /// <param name="dataProtectionProvider">Fournisseur de protectionn des données.</param>
     /// <param name="banService">Service de gestion des bannies.</param>
-    public PrivateNoteService(ILogger<PrivateNoteService> logger, IDataProtectionProvider dataProtectionProvider, BanService banService)
+    public PrivateNoteService(ILogger<PrivateNoteService> logger, BanService banService)
     {
         _Logger = logger;
-        _DataProtectionProvider = dataProtectionProvider;
         _BanService = banService;
     }
 
@@ -58,15 +52,25 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
 
     public override Task<CreateNoteResponse> CreateNote(CreateNoteRequest request, ServerCallContext context)
     {
-        if (string.IsNullOrWhiteSpace(request.Password))
+        if (request.CipherText.Length == 0)
         {
             _BanService.AddStrike(context);
-            throw new ArgumentNullException(nameof(request.Password));
+            throw new ArgumentNullException(nameof(request.CipherText));
         }
-        if (string.IsNullOrWhiteSpace(request.Message))
+        if (request.AuthTag.Length == 0)
         {
             _BanService.AddStrike(context);
-            throw new ArgumentNullException(nameof(request.Message));
+            throw new ArgumentNullException(nameof(request.AuthTag));
+        }
+        if (request.IV.Length == 0)
+        {
+            _BanService.AddStrike(context);
+            throw new ArgumentNullException(nameof(request.IV));
+        }
+        if (request.Salt.Length == 0)
+        {
+            _BanService.AddStrike(context);
+            throw new ArgumentNullException(nameof(request.Salt));
         }
 
         int noteCount = 0;
@@ -97,19 +101,18 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
             {
                 try
                 {
-                    IDataProtector dataProtector = _DataProtectionProvider.CreateProtector("Private-Channel.Back", "v1", $"{guid}-{request.Password}");
-                    ITimeLimitedDataProtector timeLimitedDataProtector = dataProtector.ToTimeLimitedDataProtector();
                     TimeSpan delay = TimeSpan.FromMinutes(Math.Max(1, Math.Min(5040, request.MinutesAvailable)));
-
-                    string protectedMessage = timeLimitedDataProtector.Protect(request.Message, delay);
 
                     lock (_NotesLocker)
                     {
                         _ProtectedNotes.Add(guid, new Note()
                         {
                             Id = guid,
+                            CipherText = request.CipherText.ToArray(),
+                            AuthTag = request.AuthTag.ToArray(),
+                            IV = request.IV.ToArray(),
+                            Salt = request.Salt.ToArray(),
                             ExpirationDateTime = DateTime.Now.Add(delay),
-                            Message = protectedMessage
                         });
                     }
 
@@ -163,10 +166,11 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
         {
             try
             {
-                IDataProtector dataProtector = _DataProtectionProvider.CreateProtector("Private-Channel.Back", "v1", $"{guid}-{request.Password}");
-                ITimeLimitedDataProtector timeLimitedDataProtector = dataProtector.ToTimeLimitedDataProtector();
-                
-                string message = timeLimitedDataProtector.Unprotect(note.Message);
+                byte[] plainBytes = new byte[note.CipherText.Length];
+                byte[] key = Rfc2898DeriveBytes.Pbkdf2(request.Password, note.Salt, 5000, HashAlgorithmName.SHA256, 32);
+
+                using var aes = new AesGcm(key);
+                aes.Decrypt(note.IV, note.CipherText, note.AuthTag, plainBytes);
 
                 lock (_NotesLocker)
                 {
@@ -175,7 +179,7 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
 
                 return Task.FromResult(new ReadNoteResponse()
                 {
-                    Message = message,
+                    Message = Encoding.UTF8.GetString(plainBytes)
                 });
             }
             catch (Exception ex)

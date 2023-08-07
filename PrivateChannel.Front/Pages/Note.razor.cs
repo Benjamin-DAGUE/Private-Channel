@@ -5,6 +5,14 @@ using System.Security.Cryptography;
 
 namespace PrivateChannel.Front.Pages;
 
+public class EncryptedNote
+{
+    public List<byte> CipherText { get; set; } = new List<byte>();
+    public List<byte> AuthTag { get; set; } = new List<byte>();
+    public List<byte> IV { get; set; } = new List<byte>();
+    public List<byte> Salt { get; set; } = new List<byte>();
+}
+
 public partial class Note
 {
     #region Properties
@@ -27,7 +35,7 @@ public partial class Note
     {
         if (NoteId == null)
         {
-             Password = GenerateSecurePassword(12);
+            Password = GenerateSecurePassword(12);
             ShowPasword();
         }
         else
@@ -43,11 +51,15 @@ public partial class Note
         {
             try
             {
+                EncryptedNote cipherData = await JsInterop.InvokeAsync<EncryptedNote>("encryptWithPassword", Message, Password);
+
                 CreateNoteResponse response = await Client.CreateNoteAsync(new CreateNoteRequest()
                 {
-                    Message = Message,
+                    CipherText = ByteString.CopyFrom(cipherData.CipherText.ToArray()),
+                    AuthTag = ByteString.CopyFrom(cipherData.AuthTag.ToArray()),
+                    IV = ByteString.CopyFrom(cipherData.IV.ToArray()),
+                    Salt = ByteString.CopyFrom(cipherData.Salt.ToArray()),
                     MinutesAvailable = HoursAvailable * 60,
-                    Password = Password
                 });
 
                 Guid noteId = new Guid(response.Id.ToByteArray());
@@ -100,7 +112,7 @@ public partial class Note
 
     public static string GenerateSecurePassword(int length)
     {
-        string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        string chars = "abcdefghijklmnopqrstuvwxyz0123456789+-*/=!";
         char[] password = new char[length];
         byte[] buffer = new byte[length * 8];
         using RandomNumberGenerator rng = RandomNumberGenerator.Create();

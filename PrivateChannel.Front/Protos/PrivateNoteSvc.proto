@@ -13,9 +13,11 @@ service PrivateNoteSvc {
 }
 
 message CreateNoteRequest {
-  string message = 1;
-  string password = 2;
-  int32 minutesAvailable = 3;
+  bytes cipherText = 1;
+  bytes authTag = 2;
+  bytes iV = 3;
+  bytes salt = 4;
+  int32 minutesAvailable = 5;
 }
 
 message CreateNoteResponse {

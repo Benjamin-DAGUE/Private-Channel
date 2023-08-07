@@ -64,6 +64,7 @@ window.generateAndEncryptSymmetricKey = async function (publicKeyAsIntArray) {
         encrypted: Array.from(new Uint8Array(encryptedSymmetricKey)),
     }
 }
+
 window.encryptWithSymmetricKey = async function (inputString, symmetricKeyAsIntArray) {
     // Convertir le tableau d'entiers en tableau d'octets
     let symmetricKeyAsByteArray = new Uint8Array(symmetricKeyAsIntArray);
@@ -147,4 +148,52 @@ window.decryptWithPrivateKeyAndSymmetricKey = async function (encryptedDataAsInt
 
 
     return "";
+}
+
+window.encryptWithPassword = async function (text, password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+
+    const passwordKey = await window.crypto.subtle.importKey(
+        "raw",
+        encoder.encode(password),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits", "deriveKey"]
+    );
+
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+    const key = await window.crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 5000,
+            hash: "SHA-256"
+        },
+        passwordKey,
+        { name: "AES-GCM", length: 256 },
+        true,
+        ["encrypt", "decrypt"]
+    );
+
+    const cipherTextWithAuthTag = await window.crypto.subtle.encrypt(
+        {
+            name: "AES-GCM",
+            iv: iv
+        },
+        key,
+        data
+    );
+
+    const cipherText = cipherTextWithAuthTag.slice(0, cipherTextWithAuthTag.byteLength - 16);
+    const authTag = cipherTextWithAuthTag.slice(cipherTextWithAuthTag.byteLength - 16);
+
+    return {
+        cipherText: Array.from(new Uint8Array(cipherText)),
+        authTag: Array.from(new Uint8Array(authTag)),
+        iv: Array.from(iv),
+        salt: Array.from(salt)
+    };
 }

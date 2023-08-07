@@ -7,17 +7,16 @@ public class Note
     /// <summary>
     ///     Get or set note Id.
     /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
-    ///     Get or set note message.
-    /// </summary>
-    public string Message { get; set; } = string.Empty;
+    public required Guid Id { get; set; }
+    public required byte[] CipherText { get; set; }
+    public required byte[] AuthTag { get; set; }
+    public required byte[] IV { get; set; }
+    public required byte[] Salt { get; set; }
 
     /// <summary>
     ///     Get or set note expiration date and time.
     /// </summary>
-    public DateTime ExpirationDateTime { get; set; } = DateTime.Now;
+    public required DateTime ExpirationDateTime { get; set; }
 
     #endregion
 }
