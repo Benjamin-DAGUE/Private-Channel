@@ -1,6 +1,7 @@
 using PrivateChannel.Back.Middleware;
 using PrivateChannel.Back.Services;
 using System.Reflection;
+using System.Text;
 
 namespace PrivateChannel.Back;
 public class Program
@@ -36,7 +37,20 @@ public class Program
         string? version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
 
-        app.Map("/", () => $"Hello World {version} !").RequireCors("CORSDefault");
+        app.Map("/robots.txt", () => $"User-agent: *{Environment.NewLine}Disallow: /");
+        app.Map("/status", () => $"{version}").RequireCors("CORSDefault");
+        app.Map("/banlist.txt", (BanService ban) =>
+        {
+            StringBuilder result = new StringBuilder();
+
+            foreach (KeyValuePair<string, DateTime> item in ban.GetBanList().OrderBy(i => i.Value))
+            {
+                result.AppendLine($"{item.Key} : {item.Value}");
+            }
+
+            return result.ToString();
+        });
+
         app.MapGrpcService<PrivateChannelService>().RequireCors("CORSDefault");
         app.MapGrpcService<PrivateNoteService>().RequireCors("CORSDefault");
 

@@ -8,44 +8,51 @@
 <MudSnackbarProvider />
 <ServerStatusProvider IsServerUpChanged="IsServerUpChanged" />
 
-<MudLayout>
-    <MudAppBar>
-        <MudImage Class="d-none d-sm-flex cursor-pointer" Src="@(_IsDarkMode ? "baneer-dark.svg" : "baneer-light.svg")" Alt="Private Channel logo" @onclick="GoHome"></MudImage>
-        <MudImage Class="d-flex d-sm-none cursor-pointer" Src="@(_IsDarkMode ? "logo-dark.svg" : "logo-light.svg")" Alt="Private Channel logo" @onclick="GoHome"></MudImage>
-        <MudSpacer />
-        <MudButton Class="d-none d-md-flex" StartIcon="@Icons.Material.Filled.Send" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/note/") ? "_blank" : "_self")" Href="/note/">
-            New note
-        </MudButton>
-        <MudButton Class="d-none d-md-flex ml-2" StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/">
-            New channel
-        </MudButton>
-        <MudIconButton Class="d-flex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@("_self")" Href="/note/" />
-        <MudIconButton Class="d-flex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" />
-        <MudIconButton Class="ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Home" Target="@("_self")" Href="/" />
+@if (_ServerStatus == ServerStatus.Ban)
+{
+    <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">Your have been ban from server...</MudText>
+}
+else
+{
+    <MudLayout>
+        <MudAppBar>
+            <MudImage Class="d-none d-sm-flex cursor-pointer" Src="@(_IsDarkMode ? "baneer-dark.svg" : "baneer-light.svg")" Alt="Private Channel logo" @onclick="GoHome"></MudImage>
+            <MudImage Class="d-flex d-sm-none cursor-pointer" Src="@(_IsDarkMode ? "logo-dark.svg" : "logo-light.svg")" Alt="Private Channel logo" @onclick="GoHome"></MudImage>
+            <MudSpacer />
+            <MudButton Class="d-none d-md-flex" StartIcon="@Icons.Material.Filled.Send" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/note/") ? "_blank" : "_self")" Href="/note/">
+                New note
+            </MudButton>
+            <MudButton Class="d-none d-md-flex ml-2" StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/">
+                New channel
+            </MudButton>
+            <MudIconButton Class="d-flex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@("_self")" Href="/note/" />
+            <MudIconButton Class="d-flex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" />
+            <MudIconButton Class="ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Home" Target="@("_self")" Href="/" />
 
-    </MudAppBar>
-    <MudMainContent>
-        @Body
-    </MudMainContent>
-    <MudAppBar Bottom Fixed Dense>
+        </MudAppBar>
+        <MudMainContent>
+            @Body
+        </MudMainContent>
+        <MudAppBar Bottom Fixed Dense>
 
         <MudToggleIconButton Class="mr-4" Size="Size.Small" ToggledSize="Size.Small" @bind-Toggled=_IsDarkMode Variant=Variant.Text ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode" Title="Switch to dark mode" ToggledTitle="Switch to light mode" />
 
-        @if (_IsServerUp == false)
-        {
-            <MudProgressCircular Color="Color.Error" Size="Size.Small" Indeterminate="true" />
-            <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">Offline...</MudText>
-        }
+        @if (_ServerStatus == ServerStatus.Down)
+            {
+                <MudProgressCircular Color="Color.Error" Size="Size.Small" Indeterminate="true" />
+                <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">Offline...</MudText>
+            }
 
-        <MudSpacer />
-        <MudText Typo="Typo.caption">No cookie website | V@_Version</MudText>
-        <MudIconButton Class="ml-4" Icon="@Icons.Custom.Brands.GitHub" Color="Color.Secondary" Size="Size.Small" Title="Github repos" Target="_blank" Href="https://github.com/Benjamin-DAGUE/Private-Channel"></MudIconButton>
-    </MudAppBar>
-</MudLayout>
+            <MudSpacer />
+            <MudText Typo="Typo.caption">No cookie website | V@_Version</MudText>
+            <MudIconButton Class="ml-4" Icon="@Icons.Custom.Brands.GitHub" Color="Color.Secondary" Size="Size.Small" Title="Github repos" Target="_blank" Href="https://github.com/Benjamin-DAGUE/Private-Channel"></MudIconButton>
+        </MudAppBar>
+    </MudLayout>
+}
 
 @code {
     private bool _IsDarkMode = true;
-    private bool _IsServerUp = false;
+    private ServerStatus _ServerStatus = ServerStatus.Up;
     string? _Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
     private void GoHome()
@@ -56,21 +63,17 @@
         }
     }
 
-    private void IsServerUpChanged((bool? oldValue, bool newValue) isServerUp)
+    private void IsServerUpChanged((ServerStatus oldStatus, ServerStatus newStatus) isServerUp)
     {
-        if (isServerUp.newValue == false)
+        if (isServerUp.newStatus == ServerStatus.Down || isServerUp.newStatus == ServerStatus.Ban)
         {
-            _IsServerUp = false;
+            _ServerStatus = isServerUp.newStatus;
             Snackbar.Add("Server unreachable...", Severity.Error);
         }
-        else if (isServerUp.newValue == true)
+        else if (isServerUp.newStatus == ServerStatus.Up && _ServerStatus != isServerUp.newStatus)
         {
-            _IsServerUp = true;
-
-            if (isServerUp.oldValue == false)
-            {
-                Snackbar.Add("Server reachable !", Severity.Success);
-            }
+            _ServerStatus = isServerUp.newStatus;
+            Snackbar.Add("Server reachable !", Severity.Success);
         }
     }
 }

@@ -3,6 +3,14 @@ using System.Threading;
 
 namespace PrivateChannel.Front.Components;
 
+public enum ServerStatus
+{
+    Unknown = 0,
+    Up = 1,
+    Down = 2,
+    Ban = 3,
+}
+
 public sealed partial class ServerStatusProvider : IDisposable
 {
     #region Fields
@@ -14,10 +22,10 @@ public sealed partial class ServerStatusProvider : IDisposable
 
     #region Parameters
 
-    public bool? IsServerUp { get; private set; }
+    public ServerStatus ServerStatus { get; private set; }
 
     [Parameter]
-    public EventCallback<(bool? oldValue, bool newValue)> IsServerUpChanged { get; set; }
+    public EventCallback<(ServerStatus oldValue, ServerStatus newValue)> IsServerUpChanged { get; set; }
 
     #endregion
 
@@ -39,43 +47,46 @@ public sealed partial class ServerStatusProvider : IDisposable
                 try
                 {
                     using HttpClient client = ClientFactory.CreateClient();
-                    client.Timeout = TimeSpan.FromSeconds(2);
+                    client.Timeout = TimeSpan.FromSeconds(5);
 
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, serverEndpoint);
-                    
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, new Uri(new Uri(serverEndpoint), "/status"));
                     HttpResponseMessage response = await client.SendAsync(request);
 
-                    if (response.StatusCode == System.Net.HttpStatusCode.OK && IsServerUp != true)
+                    ServerStatus newStatus = response.StatusCode switch
                     {
-                        bool? oldValue = IsServerUp;
-                        IsServerUp = true;
-                        await IsServerUpChanged.InvokeAsync((oldValue, true));
-                    }
-                    else if (response.StatusCode != System.Net.HttpStatusCode.OK && IsServerUp != false)
+                        System.Net.HttpStatusCode.OK => ServerStatus.Up,
+                        System.Net.HttpStatusCode.Forbidden => ServerStatus.Ban,
+                        _ => ServerStatus.Down
+                    };
+
+                    if (newStatus != ServerStatus)
                     {
-                        bool? oldValue = IsServerUp;
-                        IsServerUp = false;
-                        await IsServerUpChanged.InvokeAsync((oldValue, false));
+                        ServerStatus oldStatus = ServerStatus;
+                        ServerStatus = newStatus;
+                        await IsServerUpChanged.InvokeAsync((oldStatus, ServerStatus));
                     }
                 }
                 catch (Exception ex)
                 {
-                    bool? oldValue = IsServerUp;
-
-                    if (oldValue != false)
+                    ServerStatus oldStatus = ServerStatus;
+                    if (oldStatus != ServerStatus.Down)
                     {
-                        IsServerUp = false;
-                        await IsServerUpChanged.InvokeAsync((oldValue, false));
+                        ServerStatus = ServerStatus.Down;
+                        await IsServerUpChanged.InvokeAsync((oldStatus, ServerStatus.Down));
                     }
                 }
 
-                if (IsServerUp == true)
+                if (ServerStatus == ServerStatus.Up)
                 {
                     await Task.Delay(TimeSpan.FromMinutes(1));
                 }
-                else
+                else if (ServerStatus == ServerStatus.Down)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(15));
+                }
+                else if (ServerStatus == ServerStatus.Ban)
+                {
+                    await Task.Delay(TimeSpan.FromHours(1));
                 }
             }
         }, TaskCreationOptions.LongRunning);
