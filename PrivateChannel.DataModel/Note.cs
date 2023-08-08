@@ -1,4 +1,4 @@
-﻿namespace PrivateChannel.Back.Core;
+﻿namespace PrivateChannel.DataModel;
 
 public class Note
 {
@@ -8,9 +8,25 @@ public class Note
     ///     Get or set note Id.
     /// </summary>
     public required Guid Id { get; set; }
+
+    /// <summary>
+    ///     Get or set cipher text.
+    /// </summary>
     public required byte[] CipherText { get; set; }
+
+    /// <summary>
+    ///     Get or set auth tag.
+    /// </summary>
     public required byte[] AuthTag { get; set; }
+
+    /// <summary>
+    ///     Get or set IV.
+    /// </summary>
     public required byte[] IV { get; set; }
+
+    /// <summary>
+    ///     Get or set key derivation salt.
+    /// </summary>
     public required byte[] Salt { get; set; }
 
     /// <summary>

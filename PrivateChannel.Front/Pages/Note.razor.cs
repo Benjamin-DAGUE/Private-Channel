@@ -10,6 +10,12 @@ namespace PrivateChannel.Front.Pages;
 
 public partial class Note
 {
+    #region Fields
+
+    private Guid? _CurrentNoteId = Guid.Empty;
+    
+    #endregion
+
     #region Properties
 
     /// <summary>
@@ -78,8 +84,9 @@ public partial class Note
         {
             GenerateSecurePassword();
         }
-        else
+        else if(_CurrentNoteId != NoteId)
         {
+            _CurrentNoteId = NoteId;
             Uri uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
 
             if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("pwd", out var pwd))
