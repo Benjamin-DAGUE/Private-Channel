@@ -1,15 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PrivateChannel.Front.Models;
 using System.Threading;
 
 namespace PrivateChannel.Front.Components;
-
-public enum ServerStatus
-{
-    Unknown = 0,
-    Up = 1,
-    Down = 2,
-    Ban = 3,
-}
 
 public sealed partial class ServerStatusProvider : IDisposable
 {

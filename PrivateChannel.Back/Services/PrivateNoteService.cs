@@ -1,6 +1,9 @@
 using Google.Protobuf;
 using Grpc.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PrivateChannel.Back.Core;
+using PrivateChannel.DataModel;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -16,19 +19,14 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
     private readonly ILogger<PrivateNoteService> _Logger;
 
     /// <summary>
-    ///     Verrou d'accès aux dictionnaires des notes protégés.
-    /// </summary>
-    private static object _NotesLocker = new object();
-
-    /// <summary>
-    ///     Dictionnaire des notes protégés.
-    /// </summary>
-    public static Dictionary<Guid, Note> _ProtectedNotes = new Dictionary<Guid, Note>();
-
-    /// <summary>
     ///     Service de gestion des bannies.
     /// </summary>
     private BanService _BanService;
+
+    /// <summary>
+    ///     <see cref="PrivateChannelContext"/> factory.
+    /// </summary>
+    private readonly IDbContextFactory<PrivateChannelContext> _DbContextFactory;
 
     #endregion
 
@@ -40,17 +38,18 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
     /// <param name="logger">Journal à utiliser.</param>
     /// <param name="dataProtectionProvider">Fournisseur de protectionn des données.</param>
     /// <param name="banService">Service de gestion des bannies.</param>
-    public PrivateNoteService(ILogger<PrivateNoteService> logger, BanService banService)
+    public PrivateNoteService(ILogger<PrivateNoteService> logger, BanService banService, IDbContextFactory<PrivateChannelContext> dbContextFactory)
     {
         _Logger = logger;
         _BanService = banService;
+        _DbContextFactory = dbContextFactory;
     }
 
     #endregion
 
     #region Methods
 
-    public override Task<CreateNoteResponse> CreateNote(CreateNoteRequest request, ServerCallContext context)
+    public override async Task<CreateNoteResponse> CreateNote(CreateNoteRequest request, ServerCallContext context)
     {
         if (request.CipherText.Length == 0)
         {
@@ -73,7 +72,7 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
             throw new ArgumentNullException(nameof(request.Salt));
         }
 
-        int noteCount = 0;
+        using PrivateChannelContext dbContext = await _DbContextFactory.CreateDbContextAsync();
 
         for (int i = 0; i < 10; i++)
         {
@@ -84,58 +83,59 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
 
             Guid guid = new Guid(randomNoteId);
 
-            bool guidAlreadyExisting = true;
+            List<Note> notes = await dbContext.Notes.Where(n => n.ExpirationDateTime <= DateTime.Now).ToListAsync();
 
-            lock (_NotesLocker)
+            if (notes.Any())
             {
-                _ProtectedNotes.Where(kvp => kvp.Value.ExpirationDateTime <= DateTime.Now).ToList().ForEach(kvp => _ProtectedNotes.Remove(kvp.Key));
-
-                if (_ProtectedNotes.ContainsKey(guid) == false)
-                {
-                    guidAlreadyExisting = false;
-                    noteCount = _ProtectedNotes.Count;
-                }
+                dbContext.Notes.RemoveRange(notes);
+                await dbContext.SaveChangesAsync();
             }
 
-            if (guidAlreadyExisting == false)
+            using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
+
+            if (dbContext.Notes.Any(n => n.Id == guid) == false)
             {
                 try
                 {
                     TimeSpan delay = TimeSpan.FromMinutes(Math.Max(1, Math.Min(5040, request.MinutesAvailable)));
 
-                    lock (_NotesLocker)
+                    await dbContext.Notes.AddAsync(new Note()
                     {
-                        _ProtectedNotes.Add(guid, new Note()
-                        {
-                            Id = guid,
-                            CipherText = request.CipherText.ToArray(),
-                            AuthTag = request.AuthTag.ToArray(),
-                            IV = request.IV.ToArray(),
-                            Salt = request.Salt.ToArray(),
-                            ExpirationDateTime = DateTime.Now.Add(delay),
-                        });
-                    }
+                        Id = guid,
+                        ExpirationDateTime = DateTime.Now.Add(delay),
+                        CipherText = request.CipherText.ToArray(),
+                        AuthTag = request.AuthTag.ToArray(),
+                        IV = request.IV.ToArray(),
+                        Salt = request.Salt.ToArray()
+                    });
 
-                    return Task.FromResult(new CreateNoteResponse()
+                    await dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return new CreateNoteResponse()
                     {
                         Id = ByteString.CopyFrom(randomNoteId)
-                    });
+                    };
                 }
                 catch (Exception ex)
                 {
                     _Logger.LogError("Unable to save note {nl}{ex}:", Environment.NewLine, ex);
+                    await transaction.RollbackAsync();
                     throw;
                 }
+            }
+            else
+            {
+                transaction.Rollback();
             }
 
             Thread.Sleep(50);
         }
 
-        _Logger.LogCritical("Unable to create a new id for a note. Current note count: {0}", noteCount);
         throw new Exception("Unable to create unique note id");
     }
 
-    public override Task<ReadNoteResponse> ReadNote(ReadNoteRequest request, ServerCallContext context)
+    public override async Task<ReadNoteResponse> ReadNote(ReadNoteRequest request, ServerCallContext context)
     {
         if (string.IsNullOrWhiteSpace(request.Password))
         {
@@ -152,53 +152,40 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
         }
 
         Guid guid = new Guid(id);
-        Note? note = null;
 
-        lock (_NotesLocker)
-        {
-            if (_ProtectedNotes.ContainsKey(guid))
-            {
-                note = _ProtectedNotes[guid];
-            }
-        }
+        using PrivateChannelContext dbContext = await _DbContextFactory.CreateDbContextAsync();
+        Note? note = await dbContext.Notes.FirstOrDefaultAsync(n => n.Id == guid);
 
         if (note != null)
         {
             try
             {
+                if (note.ExpirationDateTime <= DateTime.Now)
+                {
+                    dbContext.Remove(note);
+                    await dbContext.SaveChangesAsync();
+                    throw new Exception("Note expired");
+                }
+
                 byte[] plainBytes = new byte[note.CipherText.Length];
                 byte[] key = Rfc2898DeriveBytes.Pbkdf2(request.Password, note.Salt, 5000, HashAlgorithmName.SHA256, 32);
 
                 using var aes = new AesGcm(key);
                 aes.Decrypt(note.IV, note.CipherText, note.AuthTag, plainBytes);
 
-                lock (_NotesLocker)
-                {
-                    _ProtectedNotes.Remove(guid);
-                }
+                dbContext.Notes.Remove(note);
+                await dbContext.SaveChangesAsync();
 
-                return Task.FromResult(new ReadNoteResponse()
+                return new ReadNoteResponse()
                 {
                     Message = Encoding.UTF8.GetString(plainBytes)
-                });
+                };
             }
             catch (Exception ex)
             {
-                if (ex.Message.StartsWith("The payload expired"))
-                {
-                    _Logger.LogInformation("Note expired: {id}", guid);
-                    lock (_NotesLocker)
-                    {
-                        _ProtectedNotes.Remove(guid);
-                    }
-                }
-                else
-                {
-                    _Logger.LogError("Unable to read note {nl}{ex}:", Environment.NewLine, ex);
-                    _BanService.AddStrike(context);
-                }
-
-                throw new Exception("Unalbe to read note.");
+                _Logger.LogError("Unable to read note {nl}{ex}:", Environment.NewLine, ex);
+                _BanService.AddStrike(context);
+                throw;
             }
         }
         else

@@ -7,24 +7,6 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace PrivateChannel.Front.Pages;
 
-public class AsymetricKey
-{
-    public List<int> PublicKey { get; set; } = new List<int>();
-    public List<int> PrivateKey { get; set; } = new List<int>();
-}
-
-public class SymetricKey
-{
-    public List<int> Raw { get; set; } = new List<int>();
-    public List<int> Encrypted { get; set; } = new List<int>();
-}
-
-public class EncryptedMessage
-{
-    public List<int> IV { get; set; } = new List<int>();
-    public List<int> EncryptedData { get; set; } = new List<int>();
-}
-
 public partial class Channel
 {
     #region Fields
@@ -42,7 +24,7 @@ public partial class Channel
 
     private byte[]? PeerPublicKey { get; set; }
 
-    private List<int>? PeerPublicKeyAsIntList { get; set; }
+    private List<byte>? PeerPublicKeyAsIntList { get; set; }
 
     public string ChannelLink { get; set; } = String.Empty;
 
@@ -91,7 +73,7 @@ public partial class Channel
                     using var call = Client.ConnectToChannel(new ConnectToChannelRequest()
                     {
                         ChannelId = ChannelId.ToString(),
-                        PublicKey = ByteString.CopyFrom(AsymetricKey.PublicKey.Select(i => (byte)i).ToArray())
+                        PublicKey = ByteString.CopyFrom(AsymetricKey.PublicKey.ToArray())
                     });
 
                     await foreach (ConnectToChannelResponse connectToChannelResponse in call.ResponseStream.ReadAllAsync())
@@ -113,9 +95,9 @@ public partial class Channel
                                     await foreach (GetMessagesResponse getMessageResponse in call.ResponseStream.ReadAllAsync())
                                     {
                                         string message = await JsInterop.InvokeAsync<string>("decryptWithPrivateKeyAndSymmetricKey",
-                                            getMessageResponse.EncryptedMessage.ToByteArray().Select(b => (int)b).ToList()
-                                            , getMessageResponse.IV.ToByteArray().Select(b => (int)b).ToList()
-                                            , getMessageResponse.SessionKey.ToByteArray().Select(b => (int)b).ToList()
+                                            getMessageResponse.EncryptedMessage.ToByteArray().ToList()
+                                            , getMessageResponse.IV.ToByteArray().ToList()
+                                            , getMessageResponse.SessionKey.ToByteArray().ToList()
                                             , AsymetricKey.PrivateKey);
 
                                         Messages.Add(new TextMessage()
@@ -137,10 +119,10 @@ public partial class Channel
                             if (connectToChannelResponse.IsConnected)
                             {
                                 PeerPublicKey = connectToChannelResponse.PublicKey.ToByteArray();
-                                PeerPublicKeyAsIntList = PeerPublicKey.Select(b => (int)b).ToList();
+                                PeerPublicKeyAsIntList = PeerPublicKey.ToList();
 
                                 SymetricKey = await JsInterop.InvokeAsync<SymetricKey>("generateAndEncryptSymmetricKey", PeerPublicKeyAsIntList);
-                                SessionKey = SymetricKey.Encrypted.Select(i => (byte)i).ToArray();
+                                SessionKey = SymetricKey.Encrypted.ToArray();
                             }
                             else
                             {
@@ -182,8 +164,8 @@ public partial class Channel
                 ChannelId = ChannelId.ToString(),
                 PeerId = PeerId.ToString(),
                 SessionKey = ByteString.CopyFrom(SessionKey),
-                EncryptedMessage = ByteString.CopyFrom(encryptedMessage.EncryptedData.Select(i => (byte)i).ToArray()),
-                IV = ByteString.CopyFrom(encryptedMessage.IV.Select(i => (byte)i).ToArray())
+                EncryptedMessage = ByteString.CopyFrom(encryptedMessage.EncryptedData.ToArray()),
+                IV = ByteString.CopyFrom(encryptedMessage.IV.ToArray())
             });
 
             Messages.Add(new TextMessage()

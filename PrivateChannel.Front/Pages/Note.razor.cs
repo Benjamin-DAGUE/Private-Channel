@@ -1,46 +1,104 @@
 ﻿using Google.Protobuf;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
+using MudBlazor;
+using PrivateChannel.Front.Models;
 using System.Security.Cryptography;
 
 namespace PrivateChannel.Front.Pages;
 
-public class EncryptedNote
-{
-    public List<byte> CipherText { get; set; } = new List<byte>();
-    public List<byte> AuthTag { get; set; } = new List<byte>();
-    public List<byte> IV { get; set; } = new List<byte>();
-    public List<byte> Salt { get; set; } = new List<byte>();
-}
-
 public partial class Note
 {
+    #region Fields
+
+    private Guid? _CurrentNoteId = Guid.Empty;
+    
+    #endregion
+
     #region Properties
 
+    /// <summary>
+    ///     Get or set the note identifier.
+    /// </summary>
     [Parameter]
     public Guid? NoteId { get; set; }
 
-    public string? NoteLink { get; set; }
+    /// <summary>
+    ///     Get or set the note uri.
+    /// </summary>
+    private string? NoteLink { get; set; }
 
-    public string? Message { get; set; }
-    public string? Password { get; set; }
-    public int HoursAvailable { get; set; } = 24;
+    /// <summary>
+    ///     Get or set the message.
+    /// </summary>
+    private string? Message { get; set; }
+
+    /// <summary>
+    ///     Get or set how many hours the message is available on server.
+    /// </summary>
+    private int HoursAvailable { get; set; } = 72;
+
+    #region Password management
+
+    /// <summary>
+    ///     Get or set the note password.
+    /// </summary>
+    private string? Password { get; set; }
+
+    /// <summary>
+    ///     Get or set if password is embed in note uri.
+    /// </summary>
+    private bool IsEmbedPasswordMode { get; set; }
+
+    /// <summary>
+    ///     Get or set if password is visible.
+    /// </summary>
+    private bool IsPasswordVisible { get; set; } = true;
+
+    /// <summary>
+    ///     Get or set if password is randomly generated.
+    /// </summary>
+    private bool IsRandomPassword { get; set; } = true;
+
+    /// <summary>
+    ///     Get or set password input type for visibility management.
+    /// </summary>
+    private InputType PasswordInput { get; set; } = InputType.Text;
+
+    /// <summary>
+    ///     Get or set password input adornment.
+    /// </summary>
+    private string PasswordInputIcon { get; set; } = Icons.Material.Filled.Visibility;
+
+    #endregion
+
 
     #endregion
 
     #region Methods
 
-    /// <inheritdoc/>
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (NoteId == null)
         {
-            Password = GenerateSecurePassword(12);
-            ShowPasword();
+            GenerateSecurePassword();
         }
-        else
+        else if(_CurrentNoteId != NoteId)
         {
-            Password = null;
+            _CurrentNoteId = NoteId;
+            Uri uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("pwd", out var pwd))
+            {
+                IsEmbedPasswordMode = true;
+                Password = pwd.First();
+                await ReadNote();
+            }
+            else
+            {
+                Password = null;
+            }
             HidePassword();
         }
     }
@@ -51,6 +109,10 @@ public partial class Note
         {
             try
             {
+                if (IsEmbedPasswordMode)
+                {
+                    GenerateSecurePassword();
+                }
                 EncryptedNote cipherData = await JsInterop.InvokeAsync<EncryptedNote>("encryptWithPassword", Message, Password);
 
                 CreateNoteResponse response = await Client.CreateNoteAsync(new CreateNoteRequest()
@@ -63,11 +125,11 @@ public partial class Note
                 });
 
                 Guid noteId = new Guid(response.Id.ToByteArray());
-                NoteLink = NavigationManager.Uri + noteId.ToString();
+                NoteLink = (new Uri(new Uri(NavigationManager.Uri), noteId.ToString())).ToString() + (IsEmbedPasswordMode ? $"?pwd={Password}" : "");
 
                 Snackbar.Add("Note sent, copy note link and share it!", MudBlazor.Severity.Success);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Snackbar.Add("Unable to send note, please refresh and try again.", MudBlazor.Severity.Error);
             }
@@ -89,7 +151,7 @@ public partial class Note
                 Message = response.Message;
                 Snackbar.Add("Note unlocked!", MudBlazor.Severity.Success);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Snackbar.Add("Unable to read note because it expired or password is wrong.", MudBlazor.Severity.Error);
             }
@@ -110,9 +172,11 @@ public partial class Note
         Snackbar.Add("Note link copied to clipboard!");
     }
 
-    public static string GenerateSecurePassword(int length)
+    #region Password management
+
+    public void GenerateSecurePassword(int length = 16)
     {
-        string chars = "abcdefghijklmnopqrstuvwxyz0123456789+-*/=!";
+        string chars = "abcdefghijklmnopqrstuvwxyz0123456789-*:!_";
         char[] password = new char[length];
         byte[] buffer = new byte[length * 8];
         using RandomNumberGenerator rng = RandomNumberGenerator.Create();
@@ -124,8 +188,55 @@ public partial class Note
             uint val = BitConverter.ToUInt32(buffer, i * 8);
             password[i] = chars[(int)(val % (uint)chars.Length)];
         }
-        return new string(password);
+        Password = new string(password);
+        IsRandomPassword = true;
+        ShowPasword();
     }
+
+    private void HidePassword()
+    {
+        IsPasswordVisible = false;
+        PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+        PasswordInput = InputType.Password;
+    }
+
+    private void ShowPasword()
+    {
+        IsPasswordVisible = true;
+        PasswordInputIcon = Icons.Material.Filled.Visibility;
+        PasswordInput = InputType.Text;
+    }
+
+    private void ShowHidePassword()
+    {
+        if (IsPasswordVisible)
+        {
+            HidePassword();
+        }
+        else
+        {
+            ShowPasword();
+        }
+    }
+
+    private void HideOnCustomPassword()
+    {
+        if (IsRandomPassword)
+        {
+            IsRandomPassword = false;
+            HidePassword();
+        }
+    }
+
+    private void AfterEmbededPassword()
+    {
+        if (string.IsNullOrWhiteSpace(Password) == true)
+        {
+            GenerateSecurePassword();
+        }
+    }
+
+    #endregion
 
     #endregion
 }

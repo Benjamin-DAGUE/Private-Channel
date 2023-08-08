@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using PrivateChannel.Back.Middleware;
 using PrivateChannel.Back.Services;
+using PrivateChannel.DataModel;
 using System.Reflection;
 using System.Text;
 
@@ -14,6 +16,7 @@ public class Program
         builder.Services.AddDataProtection();
         builder.Services.AddSingleton(new BanService("", 20, 180));
         builder.Services.AddGrpc();
+        builder.Services.AddDbContextFactory<PrivateChannelContext>(o => o.UseSqlServer("name=DefaultConnection"));
 
         builder.Services.AddCors(o => o.AddPolicy("CORSDefault", builder =>
         {
