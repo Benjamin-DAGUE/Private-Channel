@@ -40,6 +40,8 @@ public class BanService
     /// </summary>
     private readonly ConcurrentDictionary<string, int> _Strikes = new ConcurrentDictionary<string, int>();
 
+    private DateTime? _LastStrikesClear = null;
+
     /// <summary>
     ///     Max strike before ban.
     /// </summary>
@@ -113,6 +115,12 @@ public class BanService
     /// <param name="ip">Addresse IP à laquelle ajouter un avertissement.</param>
     public void AddStrike(string ip)
     {
+        if (_LastStrikesClear == null || _LastStrikesClear.Value <= DateTime.Now.AddDays(-1))
+        {
+            _LastStrikesClear = DateTime.Now;
+            _Strikes.Clear();
+        }
+
         if (_WhiteList.Contains(ip) == false)
         {
             if (_Strikes.ContainsKey(ip) == false)
