@@ -18,7 +18,7 @@ I'll write some doc on how to host your own instance once Core functionality wil
 # Core FX
 - [x] End to end encrypted channels for live chat messaging
 - [x] End to end encrypted note
-- [ ] Databse persistence for note
+- [X] Databse persistence for note
 - [ ] Localization (FR)
 - [ ] Security code review and documentation
 
