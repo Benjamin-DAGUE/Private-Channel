@@ -7,6 +7,10 @@
 
 <MudContainer Class="fill-height">
 
+    <MudOverlay Visible="IsLoading" DarkBackground>
+        <MudProgressCircular Color="Color.Secondary" Indeterminate Size="Size.Large"/>
+    </MudOverlay>
+
     @if (NoteId == null)
     {
         @if (string.IsNullOrEmpty(NoteLink))

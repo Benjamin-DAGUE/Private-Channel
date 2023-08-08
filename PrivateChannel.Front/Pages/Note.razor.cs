@@ -12,6 +12,9 @@ public partial class Note
 {
     #region Fields
 
+    /// <summary>
+    ///     Get or set the current value of <see cref="NoteId"/> parameter to prevent multiple calls in <see cref="OnParametersSetAsync"/>.
+    /// </summary>
     private Guid? _CurrentNoteId = Guid.Empty;
     
     #endregion
@@ -19,7 +22,12 @@ public partial class Note
     #region Properties
 
     /// <summary>
-    ///     Get or set the note identifier.
+    ///     Get or site if the component is in loading state.
+    /// </summary>
+    private bool IsLoading {  get; set; }
+
+    /// <summary>
+    ///     Get or set the note identifier. If setted, the component is in read mode.
     /// </summary>
     [Parameter]
     public Guid? NoteId { get; set; }
@@ -109,6 +117,10 @@ public partial class Note
         {
             try
             {
+                IsLoading = true;
+
+                await Task.Delay(10000);
+
                 if (IsEmbedPasswordMode)
                 {
                     GenerateSecurePassword();
@@ -133,6 +145,10 @@ public partial class Note
             {
                 Snackbar.Add("Unable to send note, please refresh and try again.", MudBlazor.Severity.Error);
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
 
@@ -142,6 +158,8 @@ public partial class Note
         {
             try
             {
+                IsLoading = true;
+
                 ReadNoteResponse response = await Client.ReadNoteAsync(new ReadNoteRequest()
                 {
                     Id = ByteString.CopyFrom(NoteId.Value.ToByteArray()),
@@ -154,6 +172,10 @@ public partial class Note
             catch (Exception)
             {
                 Snackbar.Add("Unable to read note because it expired or password is wrong.", MudBlazor.Severity.Error);
+            }
+            finally 
+            { 
+                IsLoading = false; 
             }
 
             Password = null;
