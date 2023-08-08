@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<MudThemeProvider @bind-IsDarkMode=_IsDarkMode />
+<MudThemeProvider @ref="@_MudThemeProvider" @bind-IsDarkMode=_IsDarkMode />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <ServerStatusProvider IsServerUpChanged="IsServerUpChanged" />
@@ -44,13 +44,14 @@ else
             }
 
             <MudSpacer />
-            <MudText Typo="Typo.caption">No cookie website | V@_Version</MudText>
+            <MudText Typo="Typo.caption">No cookie website | v@_Version</MudText>
             <MudIconButton Class="ml-4" Icon="@Icons.Custom.Brands.GitHub" Color="Color.Secondary" Size="Size.Small" Title="Github repos" Target="_blank" Href="https://github.com/Benjamin-DAGUE/Private-Channel"></MudIconButton>
         </MudAppBar>
     </MudLayout>
 }
 
 @code {
+    private MudThemeProvider? _MudThemeProvider;
     private bool _IsDarkMode = true;
     private ServerStatus _ServerStatus = ServerStatus.Up;
     string? _Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
@@ -75,5 +76,23 @@ else
             _ServerStatus = isServerUp.newStatus;
             Snackbar.Add("Server reachable !", Severity.Success);
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _MudThemeProvider != null)
+        {
+            _IsDarkMode = await _MudThemeProvider.GetSystemPreference();
+            await _MudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            StateHasChanged();
+        }
+    }
+
+    private Task OnSystemPreferenceChanged(bool newValue)
+    {
+        _IsDarkMode = newValue;
+        StateHasChanged();
+
+        return Task.CompletedTask;
     }
 }
