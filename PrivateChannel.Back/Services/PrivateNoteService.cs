@@ -51,7 +51,7 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
 
     public override async Task<CreateNoteResponse> CreateNote(CreateNoteRequest request, ServerCallContext context)
     {
-        if (request.CipherText.Length == 0)
+        if (request.CipherText.Length == 0 || request.CipherText.Length > 10000)
         {
             _BanService.AddStrike(context);
             throw new ArgumentNullException(nameof(request.CipherText));

@@ -12,6 +12,9 @@ public partial class Note
 {
     #region Fields
 
+    /// <summary>
+    ///     Get or set the current value of <see cref="NoteId"/> parameter to prevent multiple calls in <see cref="OnParametersSetAsync"/>.
+    /// </summary>
     private Guid? _CurrentNoteId = Guid.Empty;
     
     #endregion
@@ -19,7 +22,12 @@ public partial class Note
     #region Properties
 
     /// <summary>
-    ///     Get or set the note identifier.
+    ///     Get or site if the component is in loading state.
+    /// </summary>
+    private bool IsLoading {  get; set; }
+
+    /// <summary>
+    ///     Get or set the note identifier. If setted, the component is in read mode.
     /// </summary>
     [Parameter]
     public Guid? NoteId { get; set; }
@@ -78,6 +86,11 @@ public partial class Note
 
     #region Methods
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         if (NoteId == null)
@@ -109,6 +122,8 @@ public partial class Note
         {
             try
             {
+                IsLoading = true;
+
                 if (IsEmbedPasswordMode)
                 {
                     GenerateSecurePassword();
@@ -127,11 +142,15 @@ public partial class Note
                 Guid noteId = new Guid(response.Id.ToByteArray());
                 NoteLink = (new Uri(new Uri(NavigationManager.Uri), noteId.ToString())).ToString() + (IsEmbedPasswordMode ? $"?pwd={Password}" : "");
 
-                Snackbar.Add("Note sent, copy note link and share it!", MudBlazor.Severity.Success);
+                Snackbar.Add(_Localizer["SnackbarNoteSent"], MudBlazor.Severity.Success);
             }
             catch (Exception)
             {
-                Snackbar.Add("Unable to send note, please refresh and try again.", MudBlazor.Severity.Error);
+                Snackbar.Add(_Localizer["SnackbarSendNoteError"], MudBlazor.Severity.Error);
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
     }
@@ -142,6 +161,8 @@ public partial class Note
         {
             try
             {
+                IsLoading = true;
+
                 ReadNoteResponse response = await Client.ReadNoteAsync(new ReadNoteRequest()
                 {
                     Id = ByteString.CopyFrom(NoteId.Value.ToByteArray()),
@@ -149,11 +170,15 @@ public partial class Note
                 });
 
                 Message = response.Message;
-                Snackbar.Add("Note unlocked!", MudBlazor.Severity.Success);
+                Snackbar.Add(_Localizer["SnackbarNoteReaded"], MudBlazor.Severity.Success);
             }
             catch (Exception)
             {
-                Snackbar.Add("Unable to read note because it expired or password is wrong.", MudBlazor.Severity.Error);
+                Snackbar.Add(_Localizer["SnackbarReadNoteError"], MudBlazor.Severity.Error);
+            }
+            finally 
+            { 
+                IsLoading = false; 
             }
 
             Password = null;
@@ -163,13 +188,13 @@ public partial class Note
     private async Task CopyNoteToClipboard()
     {
         await JsInterop.InvokeVoidAsync("navigator.clipboard.writeText", Message);
-        Snackbar.Add("Note content copied to clipboard!");
+        Snackbar.Add(_Localizer["SnackbarCopyNoteMessage"]);
     }
 
     private async Task CopyNoteLinkToClipboard()
     {
         await JsInterop.InvokeVoidAsync("navigator.clipboard.writeText", NoteLink);
-        Snackbar.Add("Note link copied to clipboard!");
+        Snackbar.Add(_Localizer["SnackbarCopyNoteLink"]);
     }
 
     #region Password management

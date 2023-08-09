@@ -1,11 +1,14 @@
 using Grpc.Net.Client.Web;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using MudBlazor;
 using MudBlazor.Services;
 using PrivateChannel.Front;
+using System.Globalization;
 
 namespace PrivateChannel.Front;
+
 public class Program
 {
     public static async Task Main(string[] args)
@@ -15,6 +18,8 @@ public class Program
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
         builder.Services.AddMudServices(config =>
         {
             config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
@@ -40,6 +45,26 @@ public class Program
             o.Address = new Uri(endpoint);
         }).ConfigurePrimaryHttpMessageHandler(() => new GrpcWebHandler(new HttpClientHandler()));
 
-        await builder.Build().RunAsync();
+
+        WebAssemblyHost host = builder.Build();
+
+        CultureInfo culture;
+        IJSRuntime js = host.Services.GetRequiredService<IJSRuntime>();
+        string result = await js.InvokeAsync<string>("blazorCulture.get");
+
+        if (result != null)
+        {
+            culture = new CultureInfo(result);
+        }
+        else
+        {
+            culture = new CultureInfo("fr-FR");
+            await js.InvokeVoidAsync("blazorCulture.set", "fr-FR");
+        }
+
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+
+        await host.RunAsync();
     }
 }
