@@ -19,7 +19,7 @@ I'll write some doc on how to host your own instance once Core functionality wil
 - [x] End to end encrypted note
 - [X] Databse persistence for note
 - [X] Localization (FR)
-- [ ] Security code review and documentation
+- [X] Security code review and documentation
 
 # Extended FX
 - [ ] Other Localizations
@@ -46,7 +46,7 @@ PrivateChannel server is in dotnet Asp NET Core and use gRPC Web for communicati
 ## Database
 Databse is using Azure SQL Server database.
 
-## Note
+## Notes
 Messages within notes are encrypted client-side using JavaScript's native Crypto API and a password.
 If the user doesn't provide one, a 16-character password is generated randomly.
 This password undergoes a transformation through PBKDF2 into a SHA-256 key, leveraging a random salt and 5,000 iterations.
@@ -61,7 +61,7 @@ When a user seeks to access the note, they provide both the password and the not
 The server then attempts decryption of the note, forwarding the resultant message to the client.
 We opted for server-side decryption as a safeguard against brute force attacks, aided by a stringent ban list, and to facilitate the deletion of notes once their predetermined retention period expires.
 
-## Channel
+## Channels
 When a user creates a new channel, the server receives a request.
 In response, the server generates a random 16-byte ID for the note using `System.Security.Cryptography.RandomNumberGenerator`.
 After creating the ID, the user is automatically redirected to the channel's page.
