@@ -19,7 +19,7 @@
             <MudGrid Spacing="2" Class="align-center">
 
                 <MudItem xs="12">
-                    <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@_Localizer["NoteSendMessagePlaceholder"]" @bind-Value="Message" Lines=8 Immediate DisableUnderLine />
+                    <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@_Localizer["NoteSendMessagePlaceholder"]" @bind-Value="Message" Lines=8 Immediate DisableUnderLine MaxLength="10000"/>
                 </MudItem>
                 <MudItem xs="12" sm="4" md="3" lg="2">
                     <MudCheckBox @bind-Checked=IsEmbedPasswordMode @bind-Checked:after=AfterEmbededPassword Label="@_Localizer["EmbedPasswordLabel"]" Dense />
