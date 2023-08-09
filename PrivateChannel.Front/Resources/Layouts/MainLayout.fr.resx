@@ -144,4 +144,10 @@
   <data name="OfflineMessage" xml:space="preserve">
     <value>Déconnecté du serveur...</value>
   </data>
+  <data name="SnackbarServerReachable" xml:space="preserve">
+    <value>Serveur joignable !</value>
+  </data>
+  <data name="SnackbarServerUnreachable" xml:space="preserve">
+    <value>Serveur injoignable...</value>
+  </data>
 </root>

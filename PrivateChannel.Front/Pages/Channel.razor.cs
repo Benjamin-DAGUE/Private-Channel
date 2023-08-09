@@ -148,7 +148,7 @@ public partial class Channel
     private async Task CopyChannelLinkToClipboard()
     {
         await JsInterop.InvokeVoidAsync("navigator.clipboard.writeText", ChannelLink);
-        Snackbar.Add("Channel link copied to clipboard !");
+        Snackbar.Add(Localizer["SnackbarLinkCopied"]);
     }
 
     private async Task SendMessage()

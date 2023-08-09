@@ -1,31 +1,32 @@
-﻿@inject NavigationManager NavigationManager
-@page "/"
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<Index> Localizer
 
 <MudContainer>
-    <div class="header-image-container header-image-container-opacity-dark">
+    <div class="header-image-container">
         <img class="header-image-image" src="secure-baneer.jpg" alt="Background image">
         <div class="header-image-text">
-            <MudText Typo="Typo.h2">Secure Your Secrets with Private-Channel</MudText>
-            <MudText Typo="Typo.button">Private, Encrypted Channels and Notes for All Your Confidential Conversations</MudText>
+            <MudText Typo="Typo.h2">@Localizer["MainTitle"]</MudText>
+            <MudText Typo="Typo.button">@Localizer["SubTitle"]</MudText>
         </div>
     </div>
 
-    <MudText Typo="Typo.body1">Welcome to Private-Channel.com, your trusted partner for secure and private conversations. Whether you're looking to send a one-time password, have a private conversation, or exchange confidential information, we offer top-tier security measures to ensure your exchanges stay private.</MudText>
+    <MudText Typo="Typo.body1">@Localizer["IntroParagraph"]</MudText>
 
-    <MudText Typo="Typo.h3">How it Works</MudText>
+    <MudText Typo="Typo.h3">@Localizer["HowItWorksTitle"]</MudText>
 
 
-    <MudText Typo="Typo.h4">Private Notes:</MudText>
-    <MudText Typo="Typo.body1">Write a private note, chose a password, selected a lifetime and send it! You'll get a private link to share with your recipient. Our notes are password protected, encrypted server-side, and can be set to exists from 1 hour to 5 days. Once your note is read, it’s automaticaly destroyed, ensuring your information can't be accessed again.</MudText>
+    <MudText Typo="Typo.h4">@Localizer["HowItWorksPrivateNotesTitle"]</MudText>
+    <MudText Typo="Typo.body1">@Localizer["HowItWorksPrivateNotesParagraph"]</MudText>
 
-    <MudText Typo="Typo.h4">Private Channels:</MudText>
-    <MudText Typo="Typo.body1">For ongoing conversations, create a private channel. Using end-to-end encryption, every message in a channel is encrypted on your device and can only be decrypted by your recipient. While this requires both users to be connected, it provides an even higher level of security.</MudText>
+    <MudText Typo="Typo.h4">@Localizer["HowItWorksPrivateChannelsTitle"]</MudText>
+    <MudText Typo="Typo.body1">@Localizer["HowItWorksPrivateChannelsParagraph"]</MudText>
 
-    <MudText Typo="Typo.h3">Why should you trust us ?</MudText>
-    <MudText Typo="Typo.body1">With Private-Channel.com, you're choosing speed, security, and transparency. Our website is built with speed in mind to make sure you can communicate swiftly and efficiently. Security is at the heart of what we do - we use advanced encryption protocols to secure your messages. As security is a matter of trust, all our code will be available soon on GitHub !</MudText>
+    <MudText Typo="Typo.h3">@Localizer["TrustUsTitle"]</MudText>
+    <MudText Typo="Typo.body1">@Localizer["TrustUsParagraph"]</MudText>
 
-    <MudText Typo="Typo.h3">Ready to start ?</MudText>
-    <MudButton StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" OnClick="@(() => NavigationManager.NavigateTo("/note/"))">New note</MudButton>
-    <MudButton StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" OnClick="@(() => NavigationManager.NavigateTo("/channel/"))">New channel</MudButton>
+    <MudText Typo="Typo.h3">@Localizer["CallToActionTitle"]</MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" OnClick="@(() => NavigationManager.NavigateTo("/note/"))">@Localizer["NewNoteButton"]</MudButton>
+    <MudButton StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" OnClick="@(() => NavigationManager.NavigateTo("/channel/"))">@Localizer["NewChannelButton"]</MudButton>
 
 </MudContainer>

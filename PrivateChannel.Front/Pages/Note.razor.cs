@@ -142,11 +142,11 @@ public partial class Note
                 Guid noteId = new Guid(response.Id.ToByteArray());
                 NoteLink = (new Uri(new Uri(NavigationManager.Uri), noteId.ToString())).ToString() + (IsEmbedPasswordMode ? $"?pwd={Password}" : "");
 
-                Snackbar.Add(_Localizer["SnackbarNoteSent"], MudBlazor.Severity.Success);
+                Snackbar.Add(Localizer["SnackbarNoteSent"], MudBlazor.Severity.Success);
             }
             catch (Exception)
             {
-                Snackbar.Add(_Localizer["SnackbarSendNoteError"], MudBlazor.Severity.Error);
+                Snackbar.Add(Localizer["SnackbarSendNoteError"], MudBlazor.Severity.Error);
             }
             finally
             {
@@ -170,11 +170,11 @@ public partial class Note
                 });
 
                 Message = response.Message;
-                Snackbar.Add(_Localizer["SnackbarNoteReaded"], MudBlazor.Severity.Success);
+                Snackbar.Add(Localizer["SnackbarNoteReaded"], MudBlazor.Severity.Success);
             }
             catch (Exception)
             {
-                Snackbar.Add(_Localizer["SnackbarReadNoteError"], MudBlazor.Severity.Error);
+                Snackbar.Add(Localizer["SnackbarReadNoteError"], MudBlazor.Severity.Error);
             }
             finally 
             { 
@@ -188,13 +188,13 @@ public partial class Note
     private async Task CopyNoteToClipboard()
     {
         await JsInterop.InvokeVoidAsync("navigator.clipboard.writeText", Message);
-        Snackbar.Add(_Localizer["SnackbarCopyNoteMessage"]);
+        Snackbar.Add(Localizer["SnackbarCopyNoteMessage"]);
     }
 
     private async Task CopyNoteLinkToClipboard()
     {
         await JsInterop.InvokeVoidAsync("navigator.clipboard.writeText", NoteLink);
-        Snackbar.Add(_Localizer["SnackbarCopyNoteLink"]);
+        Snackbar.Add(Localizer["SnackbarCopyNoteLink"]);
     }
 
     #region Password management

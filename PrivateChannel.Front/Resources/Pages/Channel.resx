@@ -117,4 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="InitializingNewChannelMessage" xml:space="preserve">
+    <value>Initializing new channel...</value>
+  </data>
+  <data name="NewMessagePlaceholder" xml:space="preserve">
+    <value>Start typing your secrect message...</value>
+  </data>
+  <data name="ShareLinkMessage" xml:space="preserve">
+    <value>Share this link with your peer!</value>
+  </data>
+  <data name="SnackbarLinkCopied" xml:space="preserve">
+    <value>Channel link copied to clipboard!</value>
+  </data>
+  <data name="WaitingPeerMessage" xml:space="preserve">
+    <value>Waiting for peer...</value>
+  </data>
 </root>

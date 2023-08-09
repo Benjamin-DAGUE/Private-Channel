@@ -22,12 +22,12 @@ public partial class MainLayout
         if (isServerUp.newStatus == ServerStatus.Down || isServerUp.newStatus == ServerStatus.Ban)
         {
             _ServerStatus = isServerUp.newStatus;
-            Snackbar.Add("Server unreachable...", Severity.Error);
+            Snackbar.Add(Localizer["SnackbarServerUnreachable"], Severity.Error);
         }
         else if (isServerUp.newStatus == ServerStatus.Up && _ServerStatus != isServerUp.newStatus)
         {
             _ServerStatus = isServerUp.newStatus;
-            Snackbar.Add("Server reachable !", Severity.Success);
+            Snackbar.Add(Localizer["SnackbarServerReachable"], Severity.Success);
         }
     }
 

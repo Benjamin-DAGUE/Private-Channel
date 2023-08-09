@@ -4,7 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IJSRuntime JsInterop
-@inject IStringLocalizer<Note> _Localizer;
+@inject IStringLocalizer<Note> Localizer;
 
 <MudContainer Class="fill-height">
 
@@ -19,26 +19,26 @@
             <MudGrid Spacing="2" Class="align-center">
 
                 <MudItem xs="12">
-                    <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@_Localizer["NoteSendMessagePlaceholder"]" @bind-Value="Message" Lines=8 Immediate DisableUnderLine MaxLength="10000"/>
+                    <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@Localizer["NoteSendMessagePlaceholder"]" @bind-Value="Message" Lines=8 Immediate DisableUnderLine MaxLength="10000"/>
                 </MudItem>
                 <MudItem xs="12" sm="4" md="3" lg="2">
-                    <MudCheckBox @bind-Checked=IsEmbedPasswordMode @bind-Checked:after=AfterEmbededPassword Label="@_Localizer["EmbedPasswordLabel"]" Dense />
+                    <MudCheckBox @bind-Checked=IsEmbedPasswordMode @bind-Checked:after=AfterEmbededPassword Label="@Localizer["EmbedPasswordLabel"]" Dense />
                 </MudItem>
                 <MudItem xs="12" sm="8" md="5" lg="4">
                     @if (IsEmbedPasswordMode)
                     {
-                        <MudText Typo="Typo.caption" Color="Color.Warning">@_Localizer["EmbedPassworWarningMessage"]</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Warning">@Localizer["EmbedPassworWarningMessage"]</MudText>
                     }
                     else
                     {
-                        <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="@_Localizer["PasswordLabel"]" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="@_Localizer["PasswordAdornmentAriaLabel"]" Immediate />
+                        <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="@Localizer["PasswordLabel"]" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="@Localizer["PasswordAdornmentAriaLabel"]" Immediate />
                     }
                 </MudItem>
                 <MudItem xs="12" sm="4" md="2" lg="3">
-                    <MudNumericField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value=HoursAvailable Label="@_Localizer["HoursAvailableLabel"]" Format="0" Min="1" Max="120" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.LockClock" />
+                    <MudNumericField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value=HoursAvailable Label="@Localizer["HoursAvailableLabel"]" Format="0" Min="1" Max="120" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.LockClock" />
                 </MudItem>
                 <MudItem xs="12" sm="8" md="2" lg="3">
-                    <MudButton Class="fill-height fill-width" Variant=Variant.Filled Color=Color.Primary StartIcon="@Icons.Material.Filled.Send" OnClick="SendNote" Disabled=@(string.IsNullOrWhiteSpace(Message) || string.IsNullOrWhiteSpace(Password))>@_Localizer["SendNoteButton"]</MudButton>
+                    <MudButton Class="fill-height fill-width" Variant=Variant.Filled Color=Color.Primary StartIcon="@Icons.Material.Filled.Send" OnClick="SendNote" Disabled=@(string.IsNullOrWhiteSpace(Message) || string.IsNullOrWhiteSpace(Password))>@Localizer["SendNoteButton"]</MudButton>
                 </MudItem>
 
             </MudGrid>
@@ -49,7 +49,7 @@
             <MudGrid Spacing="2">
 
                 <MudItem xs="12">
-                    <MudTextField ReadOnly Value="@NoteLink" Label="@_Localizer["ShareLinkMessage"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyNoteLinkToClipboard" />
+                    <MudTextField ReadOnly Value="@NoteLink" Label="@Localizer["ShareLinkMessage"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyNoteLinkToClipboard" />
                 </MudItem>
 
             </MudGrid>
@@ -60,20 +60,20 @@
         <MudGrid Spacing="2">
 
             <MudItem xs="12" sm="9">
-                <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="@_Localizer["PasswordLabel"]" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="@_Localizer["PasswordAdornmentAriaLabel"]" Immediate Disabled=@(string.IsNullOrWhiteSpace(Message) == false) />
+                <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="@Localizer["PasswordLabel"]" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="@Localizer["PasswordAdornmentAriaLabel"]" Immediate Disabled=@(string.IsNullOrWhiteSpace(Message) == false) />
             </MudItem>
             <MudItem xs="12" sm="3">
-                <MudButton Class="fill-height fill-width" Variant=Variant.Filled Color=Color.Primary StartIcon="@Icons.Material.Filled.LockOpen" OnClick="ReadNote" Disabled=@(string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(Message) == false)>@_Localizer["ReadNoteButton"]</MudButton>
+                <MudButton Class="fill-height fill-width" Variant=Variant.Filled Color=Color.Primary StartIcon="@Icons.Material.Filled.LockOpen" OnClick="ReadNote" Disabled=@(string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(Message) == false)>@Localizer["ReadNoteButton"]</MudButton>
             </MudItem>
 
             <MudItem xs="12">
-                <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@_Localizer["NoteReadMessagePlaceholder"]" Value="Message" Lines=8 ReadOnly Disabled=@(string.IsNullOrWhiteSpace(Message)) Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyNoteToClipboard" DisableUnderLine />
+                <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@Localizer["NoteReadMessagePlaceholder"]" Value="Message" Lines=8 ReadOnly Disabled=@(string.IsNullOrWhiteSpace(Message)) Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyNoteToClipboard" DisableUnderLine />
             </MudItem>
 
             @if (string.IsNullOrWhiteSpace(Message) == false)
             {
                 <MudItem xs="12">
-                    <MudText Typo="Typo.caption" Color="Color.Warning">@_Localizer["NoteReadWarningMessage"]</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Warning">@Localizer["NoteReadWarningMessage"]</MudText>
                 </MudItem>
             }
 
