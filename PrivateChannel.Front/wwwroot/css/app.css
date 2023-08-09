@@ -50,8 +50,6 @@ h1:focus {
 }
 
 
-
-
 .header-image-container {
     position: relative;
     width: 100vw;
@@ -67,34 +65,13 @@ h1:focus {
     }
 }
 
-.header-image-container-opacity-light::after { /* créé un pseudo-élément pour la superposition */
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url(/secure-baneer.jpg) center/cover no-repeat; /* utilise l'image de fond */
-    filter: opacity(20%); /* ajuster l'opacité */
-}
-
-.header-image-container-opacity-dark::after { /* créé un pseudo-élément pour la superposition */
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url(/secure-baneer.jpg) center/cover no-repeat; /* utilise l'image de fond */
-    filter: opacity(35%); /* ajuster l'opacité */
-}
 
 .header-image-image {
     display: block;
     width: 100%;
     height: 400px;
     object-fit: cover;
-    opacity: 0; /* rend l'image originale transparente */
+    opacity: 0.4; 
 }
 
 @media (max-height: 512px) {

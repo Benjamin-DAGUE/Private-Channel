@@ -118,42 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CallToActionTitle" xml:space="preserve">
-    <value>Ready to start?</value>
+    <value>Prêt à démarrer ?</value>
   </data>
   <data name="HowItWorksPrivateChannelsParagraph" xml:space="preserve">
-    <value>For ongoing conversations, create a private channel. Using end-to-end encryption, every message in a channel is encrypted on your device and can only be decrypted by your recipient. While this requires both users to be connected, it provides an even higher level of security.</value>
+    <value>Pour les conversations en temps réel, vous pouvez créer un canal privé. Grâce au chiffrement de bout en bout, chaque message d'un canal est chiffré sur votre appareil et peut être déchiffré uniquement par votre destinataire. Bien que cela nécessite que les deux utilisateurs soient connectés, cette approche offre un niveau de sécurité encore plus élevé.</value>
   </data>
   <data name="HowItWorksPrivateChannelsTitle" xml:space="preserve">
-    <value>Private Channels:</value>
+    <value>Canaux privés :</value>
   </data>
   <data name="HowItWorksPrivateNotesParagraph" xml:space="preserve">
-    <value>Write a private note, chose a password, selected a lifetime and send it! You'll get a private link to share with your recipient. Our notes are password protected, encrypted client-side, and can be set to exists from 1 hour to 5 days. Once your note is read, it’s automaticaly destroyed, ensuring your information can't be accessed again.</value>
+    <value>Écrivez une note privée, choisissez un mot de passe, sélectionnez une durée de vie et envoyez-la ! Vous obtiendrez un lien privé à partager avec votre destinataire. Nos notes sont protégées par mot de passe, chiffré sur votre équipement et peuvent être configurées pour exister de 1 heure à 5 jours. Une fois votre note lue, elle est automatiquement détruite de nos serveurs, ce qui garantit que vos informations ne pourront plus être consultées.</value>
   </data>
   <data name="HowItWorksPrivateNotesTitle" xml:space="preserve">
-    <value>Private Notes:</value>
+    <value>Notes privés :</value>
   </data>
   <data name="HowItWorksTitle" xml:space="preserve">
-    <value>How it Works</value>
+    <value>Comment ça fonctionne ?</value>
   </data>
   <data name="IntroParagraph" xml:space="preserve">
-    <value>Welcome to Private-Channel.com, your trusted partner for secure and private conversations. Whether you're looking to send a one-time password, have a private conversation, or exchange confidential information, we offer top-tier security measures to ensure your exchanges stay private.</value>
+    <value>Bienvenue sur Private-Channel.com, votre partenaire de confiance pour des conversations sécurisées et privées. Que vous cherchiez à envoyer un simple mot de passe, à avoir une conversation privée ou à échanger des informations confidentielles, nous proposons des mesures de sécurité de haut niveau pour garantir la confidentialité de vos échanges.</value>
   </data>
   <data name="MainTitle" xml:space="preserve">
-    <value>Secure Your Secrets with Private-Channel</value>
+    <value>Protéger vos secrets avec Private-Channel</value>
   </data>
   <data name="NewChannelButton" xml:space="preserve">
-    <value>New channel</value>
+    <value>Créer un canal</value>
   </data>
   <data name="NewNoteButton" xml:space="preserve">
-    <value>New note</value>
+    <value>Créer une note</value>
   </data>
   <data name="SubTitle" xml:space="preserve">
-    <value>Private, Encrypted Channels and Notes for All Your Confidential Conversations</value>
+    <value>Canaux et notes privés et cryptés pour toutes vos conversations confidentielles</value>
   </data>
   <data name="TrustUsParagraph" xml:space="preserve">
-    <value>With Private-Channel.com, you're choosing speed, security, and transparency. Our website is built with speed in mind to make sure you can communicate swiftly and efficiently. Security is at the heart of what we do - we use advanced encryption protocols to secure your messages. As security is a matter of trust, all our code will be available soon on GitHub!</value>
+    <value>Avec Private-Channel.com, vous choisissez la rapidité, la sécurité et la transparence. Notre site Web est conçu dans un souci de rapidité pour vous permettre de communiquer rapidement et efficacement. La sécurité est au cœur de ce que nous faisons - nous utilisons des protocoles de cryptage avancés pour sécuriser vos messages. La sécurité étant une question de confiance, tout notre code sera bientôt disponible sur GitHub !</value>
   </data>
   <data name="TrustUsTitle" xml:space="preserve">
-    <value>Why should you trust us?</value>
+    <value>Pourquoi nous faire confiance ?</value>
   </data>
 </root>
