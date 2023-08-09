@@ -2,6 +2,7 @@
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+@inject IStringLocalizer<MainLayout> _Localizer;
 
 <MudThemeProvider @ref="@_MudThemeProvider" @bind-IsDarkMode=_IsDarkMode />
 <MudDialogProvider />
@@ -10,7 +11,7 @@
 
 @if (_ServerStatus == ServerStatus.Ban)
 {
-    <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">Your have been ban from server...</MudText>
+    <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">@_Localizer["BanMessage"]</MudText>
 }
 else
 {
@@ -20,14 +21,14 @@ else
             <MudImage Class="d-flex d-sm-none cursor-pointer" Src="@(_IsDarkMode ? "logo-dark.svg" : "logo-light.svg")" Alt="Private Channel logo" @onclick="GoHome"></MudImage>
             <MudSpacer />
             <MudButton Class="d-none d-md-flex" StartIcon="@Icons.Material.Filled.Send" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/note/") ? "_blank" : "_self")" Href="/note/">
-                New note
+                @_Localizer["NewNoteButton"]
             </MudButton>
             <MudButton Class="d-none d-md-flex ml-2" StartIcon="@Icons.Material.Filled.Message" Color="Color.Secondary" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/">
-                New channel
+                @_Localizer["NewChannelButton"]
             </MudButton>
-            <MudIconButton Class="d-flex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@("_self")" Href="/note/" />
-            <MudIconButton Class="d-flex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" />
-            <MudIconButton Class="ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Home" Target="@("_self")" Href="/" />
+            <MudIconButton Class="d-flex d-md-none" Color="Color.Secondary" Icon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/note/") ? "_blank" : "_self")" Href="/note/" Title="@_Localizer["NewNoteButton"]" />
+            <MudIconButton Class="d-flex d-md-none ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Message" Variant="Variant.Filled" Target="@(NavigationManager.Uri.ToLower().Contains("/channel/") ? "_blank" : "_self")" Href="/channel/" Title="@_Localizer["NewChannelButton"]" />
+            <MudIconButton Class="ml-2" Color="Color.Secondary" Icon="@Icons.Material.Filled.Home" Target="@("_self")" Href="/" Title="@_Localizer["HomeButton"]" />
 
         </MudAppBar>
         <MudMainContent>
@@ -35,17 +36,20 @@ else
         </MudMainContent>
         <MudAppBar Bottom Fixed Dense>
 
-        <MudToggleIconButton Class="mr-4" Size="Size.Small" ToggledSize="Size.Small" @bind-Toggled=_IsDarkMode Variant=Variant.Text ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode" Title="Switch to dark mode" ToggledTitle="Switch to light mode" />
-
         @if (_ServerStatus == ServerStatus.Down)
             {
                 <MudProgressCircular Color="Color.Error" Size="Size.Small" Indeterminate="true" />
-                <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">Offline...</MudText>
+                <MudText Typo="Typo.overline" Color="Color.Error" Class="ml-4" Style="font-weight:900">@_Localizer["OfflineMessage"]</MudText>
+            }
+            else
+            {
+                <MudToggleIconButton Class="mr-4" Size="Size.Small" ToggledSize="Size.Small" @bind-Toggled=_IsDarkMode Variant=Variant.Text ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode" Title="@_Localizer["DarkModeButton"]" ToggledTitle="@_Localizer["LightModeButton"]" />
+                <CultureSelector />
+                <MudSpacer />
+                <MudText Typo="Typo.caption">@_Localizer["CookieMessage"] | v@_Version</MudText>
+                <MudIconButton Class="ml-4" Icon="@Icons.Custom.Brands.GitHub" Color="Color.Secondary" Size="Size.Small" Title="@_Localizer["GithubRepos"]" Target="_blank" Href="https://github.com/Benjamin-DAGUE/Private-Channel"></MudIconButton>
             }
 
-            <MudSpacer />
-            <MudText Typo="Typo.caption">No cookie website | v@_Version</MudText>
-            <MudIconButton Class="ml-4" Icon="@Icons.Custom.Brands.GitHub" Color="Color.Secondary" Size="Size.Small" Title="Github repos" Target="_blank" Href="https://github.com/Benjamin-DAGUE/Private-Channel"></MudIconButton>
         </MudAppBar>
     </MudLayout>
 }

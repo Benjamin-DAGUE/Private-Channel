@@ -1,0 +1,20 @@
+﻿@using System.Globalization
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+
+
+<MudMenu Class="d-none d-sm-flex" StartIcon="@Icons.Material.Filled.Translate" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Label="@CultureToNativeName(Culture)" Color="Color.Secondary" Variant="Variant.Filled" FullWidth Dense>
+    @foreach (CultureInfo culture in _SupportedCultures)
+    {
+        <MudMenuItem @key=culture OnClick="@(() => Culture = culture)">@CultureToNativeName(culture)</MudMenuItem>
+    }
+</MudMenu>
+
+
+<MudMenu Class="d-flex d-sm-none" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Label="@Culture.TwoLetterISOLanguageName" Color="Color.Secondary" Variant="Variant.Filled" FullWidth Dense>
+    @foreach (CultureInfo culture in _SupportedCultures)
+    {
+        <MudMenuItem @key=culture OnClick="@(() => Culture = culture)">@culture.TwoLetterISOLanguageName.ToUpper()</MudMenuItem>
+    }
+</MudMenu>
