@@ -202,9 +202,12 @@ public class PrivateChannelService : PrivateChannelSvc.PrivateChannelSvcBase
             isChannelEmpty = otherPeer == null;
         }
 
-        lock (_ChannelsLocker)
+        if (isChannelEmpty)
         {
-            _Channels.Remove(channelId);
+            lock (_ChannelsLocker)
+            {
+                _Channels.Remove(channelId);
+            }
         }
     }
 

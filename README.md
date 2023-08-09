@@ -18,8 +18,8 @@ I'll write some doc on how to host your own instance once Core functionality wil
 - [x] End to end encrypted channels for live chat messaging
 - [x] End to end encrypted note
 - [X] Databse persistence for note
-- [ ] Localization (FR)
-- [ ] Security code review and documentation
+- [X] Localization (FR)
+- [X] Security code review and documentation
 
 # Extended FX
 - [ ] Other Localizations
@@ -46,7 +46,7 @@ PrivateChannel server is in dotnet Asp NET Core and use gRPC Web for communicati
 ## Database
 Databse is using Azure SQL Server database.
 
-## Note
+## Notes
 Messages within notes are encrypted client-side using JavaScript's native Crypto API and a password.
 If the user doesn't provide one, a 16-character password is generated randomly.
 This password undergoes a transformation through PBKDF2 into a SHA-256 key, leveraging a random salt and 5,000 iterations.
@@ -61,7 +61,32 @@ When a user seeks to access the note, they provide both the password and the not
 The server then attempts decryption of the note, forwarding the resultant message to the client.
 We opted for server-side decryption as a safeguard against brute force attacks, aided by a stringent ban list, and to facilitate the deletion of notes once their predetermined retention period expires.
 
-## Channel
+## Channels
+When a user creates a new channel, the server receives a request.
+In response, the server generates a random 16-byte ID for the note using `System.Security.Cryptography.RandomNumberGenerator`.
+After creating the ID, the user is automatically redirected to the channel's page.
+
+Before initiating a connection, an asymmetric key pair is generated client side using RSA-OAEP.
+This key generation employs a 2048-bit modulus length and the SHA-256 hashing algorithm.
+While the private key remains securely stored in memory, the public key is sent to the server when the user tries to connect to the channel.
+
+The connection process involves a gRPC stream, which notifies users when another peer connects or disconnects.
+This system facilitates the exchange of public keys between peers.
+
+Every peer that connects generates a symmetric key known as the session key.
+This key is crafted using the AES-GCM algorithm and is encrypted with the public key of the recipient. This ensures that only the intended peer can decrypt the session key with their private key, making the communication secure.
+
+When sending a message, a peer encrypts the content using the session key.
+This encryption is combined with a unique, one-time-use 12-bit Initialization Vector (IV).
+The resulting encrypted message and the IV are then transmitted to the other peer.
+
+Upon joining a channel, peers immediately start receiving messages through a gRPC stream.
+When a message arrives, the peer first checks if a new session key accompanies it.
+If such a key is present, the peer decrypts this key using their private key, setting it as the active session key for further communications.
+Following this, the actual message is decrypted using the current session key.
+
+Channels use real end to end encryption and all cryptographic workload are done on peers devices.
+
 
 # Contributions
 This is my first open source project and I'm note used to it yet but feel free to contact me if you want to help or support this project!
