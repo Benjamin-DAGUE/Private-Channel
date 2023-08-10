@@ -23,8 +23,7 @@ public partial class Channel
     private Guid? PeerId { get; set; }
 
     private byte[]? PeerPublicKey { get; set; }
-
-    private List<byte>? PeerPublicKeyAsIntList { get; set; }
+    private List<byte>? PeerSessionKey { get; set; }
 
     public string ChannelLink { get; set; } = String.Empty;
 
@@ -35,6 +34,10 @@ public partial class Channel
     private AsymetricKey? AsymetricKey { get; set; }
 
     private byte[]? SessionKey { get; set; }
+
+    private bool SessionKeySended { get; set; }
+
+    private int SessionKeyRemainingUsage { get; set; }
 
     private string TextToSend { get; set; } = string.Empty;
 
@@ -94,10 +97,15 @@ public partial class Channel
 
                                     await foreach (GetMessagesResponse getMessageResponse in call.ResponseStream.ReadAllAsync())
                                     {
+                                        if (PeerSessionKey == null || getMessageResponse.SessionKey.ToByteArray().Length > 0)
+                                        {
+                                            PeerSessionKey = getMessageResponse.SessionKey.ToByteArray().ToList();
+                                        }
+
                                         string message = await JsInterop.InvokeAsync<string>("decryptWithPrivateKeyAndSymmetricKey",
                                             getMessageResponse.EncryptedMessage.ToByteArray().ToList()
                                             , getMessageResponse.IV.ToByteArray().ToList()
-                                            , getMessageResponse.SessionKey.ToByteArray().ToList()
+                                            , PeerSessionKey
                                             , AsymetricKey.PrivateKey);
 
                                         Messages.Add(new TextMessage()
@@ -119,17 +127,14 @@ public partial class Channel
                             if (connectToChannelResponse.IsConnected)
                             {
                                 PeerPublicKey = connectToChannelResponse.PublicKey.ToByteArray();
-                                PeerPublicKeyAsIntList = PeerPublicKey.ToList();
-
-                                SymetricKey = await JsInterop.InvokeAsync<SymetricKey>("generateAndEncryptSymmetricKey", PeerPublicKeyAsIntList);
-                                SessionKey = SymetricKey.Encrypted.ToArray();
+                                await GenerateSessionKey();
                             }
                             else
                             {
                                 PeerPublicKey = null;
-                                PeerPublicKeyAsIntList = null;
                                 SymetricKey = null;
                                 SessionKey = null;
+                                SessionKeySended = false;
                             }
                         }
 
@@ -145,6 +150,14 @@ public partial class Channel
         }
     }
 
+    private async Task GenerateSessionKey()
+    {
+        SymetricKey = await JsInterop.InvokeAsync<SymetricKey>("generateAndEncryptSymmetricKey", PeerPublicKey.ToList());
+        SessionKey = SymetricKey.Encrypted.ToArray();
+        SessionKeyRemainingUsage = 20;
+        SessionKeySended = false;
+    }
+
     private async Task CopyChannelLinkToClipboard()
     {
         await JsInterop.InvokeVoidAsync("navigator.clipboard.writeText", ChannelLink);
@@ -153,7 +166,12 @@ public partial class Channel
 
     private async Task SendMessage()
     {
-        if (SymetricKey != null)
+        if (SymetricKey == null || SessionKeyRemainingUsage <= 0)
+        {
+            await GenerateSessionKey();
+        }
+
+        if (SymetricKey != null && SessionKeyRemainingUsage > 0)
         {
             string messageToSend = TextToSend;
 
@@ -163,10 +181,12 @@ public partial class Channel
             {
                 ChannelId = ChannelId.ToString(),
                 PeerId = PeerId.ToString(),
-                SessionKey = ByteString.CopyFrom(SessionKey),
+                SessionKey = ByteString.CopyFrom(SessionKeySended ? new byte[0] : SessionKey),
                 EncryptedMessage = ByteString.CopyFrom(encryptedMessage.EncryptedData.ToArray()),
                 IV = ByteString.CopyFrom(encryptedMessage.IV.ToArray())
             });
+
+            SessionKeySended = true;
 
             Messages.Add(new TextMessage()
             {
@@ -175,6 +195,8 @@ public partial class Channel
             });
 
             TextToSend = string.Empty;
+
+            SessionKeyRemainingUsage--;
         }
     }
 
