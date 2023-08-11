@@ -1,9 +1,9 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using PrivateChannel.Front.Models;
-using System.Security.Cryptography.X509Certificates;
 
 namespace PrivateChannel.Front.Pages;
 
@@ -108,11 +108,22 @@ public partial class Channel
                                             , PeerSessionKey
                                             , AsymetricKey.PrivateKey);
 
-                                        Messages.Add(new TextMessage()
+
+                                        int scrollPosition = await JsInterop.InvokeAsync<int>("scrollPosition", "channel-pannel");
+
+                                        MessageBase msg = new TextMessage()
                                         {
+                                            Id = Guid.NewGuid(),
                                             Message = message
-                                        });
+                                        };
+
+                                        Messages.Add(msg);
                                         await InvokeAsync(StateHasChanged);
+
+                                        if (scrollPosition >= 0)
+                                        {
+                                            await JsInterop.InvokeVoidAsync("scrollIntoView", msg.Id);
+                                        }
                                     }
                                 }
                                 catch (Exception ex)
@@ -188,15 +199,28 @@ public partial class Channel
 
             SessionKeySended = true;
 
-            Messages.Add(new TextMessage()
+            MessageBase msg = new TextMessage()
             {
+                Id = Guid.NewGuid(),
                 Message = messageToSend,
                 IsSender = true
-            });
+            };
 
+            Messages.Add(msg);
             TextToSend = string.Empty;
 
+            await InvokeAsync(StateHasChanged);
+
             SessionKeyRemainingUsage--;
+            await JsInterop.InvokeVoidAsync("scrollIntoView", msg.Id);
+        }
+    }
+
+    private async Task KeyDown(KeyboardEventArgs args)
+    {
+        if (args.ShiftKey == false && args.Key == "Enter")
+        {
+            await SendMessage();
         }
     }
 

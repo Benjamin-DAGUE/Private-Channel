@@ -23,25 +23,13 @@
             {
                 <MudPaper Class="flex-grow-1 overflow-auto" Elevation="3">
 
-                    <div class="fill-height overflow-auto">
-                        <div class="fill-height d-flex flex-column gap-4 px-4 pb-4 overflow-auto">
+                    <MudStack Class="fill-height overflow-auto px-4 pb-4" Justify="Justify.FlexStart" AlignItems="AlignItems.Center" Row="false" Reverse Spacing="2">
 
-                            @*This is a hack to get item align at bottom with scrollbar*@
-                            <div class="mt-auto"></div>
-
-                            @{
-                                DateTime? day = null;
-                            }
-
-                            @foreach (MessageBase message in Messages)
+                        @foreach (var group in Messages.GroupBy(m => m.DateTime.Date).OrderByDescending(g => g.Key))
+                        {
+                            @foreach (MessageBase message in Messages.OrderByDescending(m => m.DateTime))
                             {
-                                @if (day == null || day != message.DateTime.Date)
-                                {
-                                    day = message.DateTime.Date;
-
-                                    <MudText @key=day Class="align-self-center" Typo="Typo.caption">@day.Value.ToLongDateString()</MudText>
-                                }
-                                <MudPaper @key=message MaxWidth="90%" Class="@("pt-4 px-6 pb-2 " + (message.IsSender ? "mud-theme-secondary rounded-l-xl rounded-tr-xl align-self-end" : "mud-theme-primary rounded-r-xl rounded-tl-xl align-self-start"))">
+                                <MudPaper id="@(message.Id)" @key=message MaxWidth="90%" Class="@("pt-4 px-6 pb-2 " + (message.IsSender ? "mud-theme-secondary rounded-l-xl rounded-tr-xl align-self-end" : "mud-theme-primary rounded-r-xl rounded-tl-xl align-self-start"))">
                                     @if (message is TextMessage textMessage)
                                     {
                                         <div class="d-flex flex-column gap-2" style="min-width:60px">
@@ -52,13 +40,14 @@
                                     }
                                 </MudPaper>
                             }
-                        </div>
-                    </div>
+                            <MudText @key=group.Key Class="align-self-center" Typo="Typo.caption">@group.Key.ToLongDateString()</MudText>
+                        }
+                    </MudStack>
 
                 </MudPaper>
 
                 <MudPaper MinHeight="80px" Elevation="0">
-                    <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@Localizer["NewMessagePlaceholder"]" @bind-Value="TextToSend" Lines=@(Math.Max(2, Math.Min(TextToSend.Split('\n').Length ,6))) Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Immediate DisableUnderLine/>
+                    <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@Localizer["NewMessagePlaceholder"]" @bind-Value="TextToSend" Lines=@(Math.Max(2, Math.Min(TextToSend.Split('\n').Length ,6))) Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Immediate DisableUnderLine OnKeyDown="KeyDown"/>
                 </MudPaper>
 
             }
