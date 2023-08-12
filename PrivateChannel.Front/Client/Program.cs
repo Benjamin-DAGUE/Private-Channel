@@ -5,6 +5,7 @@ using Microsoft.JSInterop;
 using MudBlazor;
 using MudBlazor.Services;
 using PrivateChannel.Front;
+using PrivateChannel.Front.Services;
 using System.Globalization;
 
 namespace PrivateChannel.Front;
@@ -20,6 +21,7 @@ public class Program
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
+        builder.Services.AddTransient<IdentIconService>();
         builder.Services.AddMudServices(config =>
         {
             config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
