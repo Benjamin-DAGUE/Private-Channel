@@ -24,7 +24,7 @@
                 <MudItem xs="12" sm="4" md="3" lg="2">
                     <MudCheckBox @bind-Checked=IsEmbedPasswordMode @bind-Checked:after=AfterEmbededPassword Label="@Localizer["EmbedPasswordLabel"]" Dense />
                 </MudItem>
-                <MudItem xs="12" sm="8" md="5" lg="4">
+                <MudItem xs="12" sm="8" md="3" lg="4">
                     @if (IsEmbedPasswordMode)
                     {
                         <MudText Typo="Typo.caption" Color="Color.Warning">@Localizer["EmbedPassworWarningMessage"]</MudText>
@@ -34,10 +34,13 @@
                         <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value="Password" @bind-Value:after=HideOnCustomPassword Label="@Localizer["PasswordLabel"]" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ShowHidePassword" AdornmentAriaLabel="@Localizer["PasswordAdornmentAriaLabel"]" Immediate />
                     }
                 </MudItem>
-                <MudItem xs="12" sm="4" md="2" lg="3">
-                    <MudNumericField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value=HoursAvailable Label="@Localizer["HoursAvailableLabel"]" Format="0" Min="1" Max="120" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.LockClock" />
+                <MudItem xs="6" sm="4" md="2" lg="2">
+                    <MudNumericField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value=HoursAvailable Label="@Localizer["HoursAvailableLabel"]" Format="0" Min="1" Max="120" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.AutoDelete" />
                 </MudItem>
-                <MudItem xs="12" sm="8" md="2" lg="3">
+                <MudItem xs="6" sm="4" md="2" lg="2">
+                    <MudNumericField Margin="Margin.Dense" Variant="Variant.Outlined" @bind-Value=MaxUnlockAttempts Label="@Localizer["MaxUnlockAttemptsLabel"]" Format="0" Min="1" Max="100" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Error" />
+                </MudItem>
+                <MudItem xs="12" sm="4" md="2" lg="2">
                     <MudButton Class="fill-height fill-width" Variant=Variant.Filled Color=Color.Primary StartIcon="@Icons.Material.Filled.Send" OnClick="SendNote" Disabled=@(string.IsNullOrWhiteSpace(Message) || string.IsNullOrWhiteSpace(Password))>@Localizer["SendNoteButton"]</MudButton>
                 </MudItem>
 

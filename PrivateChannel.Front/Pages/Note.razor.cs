@@ -47,6 +47,11 @@ public partial class Note
     /// </summary>
     private int HoursAvailable { get; set; } = 72;
 
+    /// <summary>
+    ///     Get or set how many unlock attempts are allowed prior deletion.
+    /// </summary>
+    private int MaxUnlockAttempts { get; set; } = 5;
+
     #region Password management
 
     /// <summary>
@@ -80,7 +85,6 @@ public partial class Note
     private string PasswordInputIcon { get; set; } = Icons.Material.Filled.Visibility;
 
     #endregion
-
 
     #endregion
 
@@ -137,6 +141,7 @@ public partial class Note
                     IV = ByteString.CopyFrom(cipherData.IV.ToArray()),
                     Salt = ByteString.CopyFrom(cipherData.Salt.ToArray()),
                     MinutesAvailable = HoursAvailable * 60,
+                    MaxUnlockAttempts = MaxUnlockAttempts
                 });
 
                 Guid noteId = new Guid(response.Id.ToByteArray());

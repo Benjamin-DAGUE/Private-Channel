@@ -34,5 +34,10 @@ public class Note
     /// </summary>
     public required DateTime ExpirationDateTime { get; set; }
 
+    /// <summary>
+    ///     Get or set the remaining unlock attempts prior deletion.
+    /// </summary>
+    public int RemainingUnlockAttempts { get; set; }
+
     #endregion
 }

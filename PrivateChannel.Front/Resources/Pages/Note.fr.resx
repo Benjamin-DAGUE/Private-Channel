@@ -126,6 +126,9 @@
   <data name="HoursAvailableLabel" xml:space="preserve">
     <value>Disponibilité (h)</value>
   </data>
+  <data name="MaxUnlockAttemptsLabel" xml:space="preserve">
+    <value>Tentatives</value>
+  </data>
   <data name="NoteReadMessagePlaceholder" xml:space="preserve">
     <value>Notez verrouillée, tapez votre mot de passe et déverrouillez-la !</value>
   </data>
