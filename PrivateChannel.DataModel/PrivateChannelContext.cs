@@ -26,7 +26,7 @@ public class PrivateChannelContext : DbContext
     /// </summary>
     public PrivateChannelContext()
     {
-            
+
     }
 
     /// <summary>
@@ -60,6 +60,9 @@ public class PrivateChannelContext : DbContext
         modelBuilder.Entity<Note>(e =>
         {
             e.HasKey(e => e.Id);
+
+            e.Property(e => e.RemainingUnlockAttempts)
+            .HasDefaultValue(5);
         });
     }
 

@@ -106,7 +106,8 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
                         CipherText = request.CipherText.ToArray(),
                         AuthTag = request.AuthTag.ToArray(),
                         IV = request.IV.ToArray(),
-                        Salt = request.Salt.ToArray()
+                        Salt = request.Salt.ToArray(),
+                        RemainingUnlockAttempts = Math.Min(100, Math.Max(1, request.MaxUnlockAttempts))
                     });
 
                     await dbContext.SaveChangesAsync();
@@ -167,14 +168,24 @@ public class PrivateNoteService : PrivateNoteSvc.PrivateNoteSvcBase
                     throw new Exception("Note expired");
                 }
 
+                note.RemainingUnlockAttempts--;
+                if (note.RemainingUnlockAttempts <= 0)
+                {
+                    dbContext.Remove(note);
+                }
+                await dbContext.SaveChangesAsync();
+
                 byte[] plainBytes = new byte[note.CipherText.Length];
                 byte[] key = Rfc2898DeriveBytes.Pbkdf2(request.Password, note.Salt, 5000, HashAlgorithmName.SHA256, 32);
 
                 using var aes = new AesGcm(key);
                 aes.Decrypt(note.IV, note.CipherText, note.AuthTag, plainBytes);
 
-                dbContext.Notes.Remove(note);
-                await dbContext.SaveChangesAsync();
+                if (note.RemainingUnlockAttempts > 0)
+                {
+                    dbContext.Notes.Remove(note);
+                    await dbContext.SaveChangesAsync(); 
+                }
 
                 return new ReadNoteResponse()
                 {

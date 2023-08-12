@@ -18,6 +18,7 @@ message CreateNoteRequest {
   bytes iV = 3;
   bytes salt = 4;
   int32 minutesAvailable = 5;
+  int32 maxUnlockAttempts = 6;
 }
 
 message CreateNoteResponse {
