@@ -117,19 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InitializingNewChannelMessage" xml:space="preserve">
-    <value>Initialisation d'un nouveau canal...</value>
-  </data>
-  <data name="NewMessagePlaceholder" xml:space="preserve">
-    <value>Commencez à taper votre message secret...</value>
-  </data>
-  <data name="ShareLinkMessage" xml:space="preserve">
-    <value>Partager ce lien avec votre correspondant !</value>
-  </data>
-  <data name="SnackbarLinkCopied" xml:space="preserve">
-    <value>Lien du canal copié dans le presse-papiers !</value>
-  </data>
-  <data name="WaitingPeerMessage" xml:space="preserve">
-    <value>En attente du correspondant...</value>
+  <data name="AddChannelButton" xml:space="preserve">
+    <value>Créer un canal</value>
   </data>
 </root>

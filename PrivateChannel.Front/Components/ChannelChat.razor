@@ -1,5 +1,54 @@
-﻿<h3>ChannelChat</h3>
+﻿@inject PrivateChannelSvc.PrivateChannelSvcClient Client
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IJSRuntime JsInterop
+@inject IStringLocalizer<ChannelChat> Localizer
 
-@code {
+@if (ChannelId != null)
+{
+    <div class="d-flex fill-height flex-column gap-4 py-4">
 
+        @if (PeerPublicKey != null)
+        {
+            <MudPaper Class="flex-grow-1 overflow-auto" Elevation="3">
+
+                <MudStack id="@($"Channel-Pannel-{ChannelId}")" Class="fill-height overflow-auto px-4 pb-4" Justify="Justify.FlexStart" AlignItems="AlignItems.Center" Row="false" Reverse Spacing="2">
+
+                    @foreach (var group in Messages.GroupBy(m => m.DateTime.Date).OrderByDescending(g => g.Key))
+                    {
+                        @foreach (MessageBase message in Messages.OrderByDescending(m => m.DateTime))
+                        {
+                            <MudPaper id="@(message.Id)" @key=message MaxWidth="90%" Class="@("pt-4 px-6 pb-2 " + (message.IsSender ? "mud-theme-secondary rounded-l-xl rounded-tr-xl align-self-end" : "mud-theme-primary rounded-r-xl rounded-tl-xl align-self-start"))">
+                                @if (message is TextMessage textMessage)
+                                {
+                                    <div class="d-flex flex-column gap-2" style="min-width:60px">
+                                        <pre style="white-space:pre-wrap"><MudText Typo="Typo.body1">@textMessage.Message</MudText></pre>
+                                        <MudText Class="@(" " + (message.IsSender ? "align-self-end" : "align-self-start"))" Typo="Typo.caption">@textMessage.DateTime.ToShortTimeString()</MudText>
+                                    </div>
+
+                                }
+                            </MudPaper>
+                        }
+                        <MudText @key=group.Key Class="align-self-center" Typo="Typo.caption">@group.Key.ToLongDateString()</MudText>
+                    }
+                </MudStack>
+
+            </MudPaper>
+            <div>
+                <MudTextField Margin="Margin.Dense" Variant="Variant.Filled" Placeholder="@Localizer["NewMessagePlaceholder"]" @bind-Value="TextToSend" Lines=@(Math.Max(2, Math.Min(TextToSend.Split('\n').Length ,6))) Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Send" OnAdornmentClick="SendMessage" Immediate DisableUnderLine OnKeyDown="KeyDown" />
+            </div>
+
+        }
+        else
+        {
+            <div>
+                <MudTextField ReadOnly Value="ChannelLink" Label="@Localizer["ShareLinkMessage"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ContentCopy" OnAdornmentClick="CopyChannelLinkToClipboard" />
+            </div>
+            <div class="d-flex flex-column align-center mt-4">
+                <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+                <MudText Typo="Typo.body1">@Localizer["WaitingPeerMessage"]</MudText>
+            </div>
+        }
+
+    </div>
 }
